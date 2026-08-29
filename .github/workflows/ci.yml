@@ -1,0 +1,55 @@
+name: React CI
+on:
+  push:
+    branches: ['main', 'develop']
+  pull_request:
+    branches: ['**']
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Node 설정
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 의존성 설치
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        run: npm run build
+
+      - name: Ongil-Front CI Discord Notification (success)
+        if: success()
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_FRONT_WEBHOOK }}
+          status: ${{ job.status }}
+          title: '✅ [Admin] 빌드 성공'
+          description: '빌드 성공'
+          color: 65280
+          username: 'front-bot'
+
+      - name: Ongil-Front CI Discord Notification (failure)
+        if: failure()
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_FRONT_WEBHOOK }}
+          status: ${{ job.status }}
+          title: '❗ [Admin] 빌드 실패'
+          description: '빌드 실패'
+          color: 16711680
+          username: 'front-bot'
