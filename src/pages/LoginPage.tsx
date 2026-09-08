@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import ongilLogo from '../assets/ongil-logo.png'
 import ongilLetterLogo from '../assets/ongil-letter-logo.png'
-import DashboardPage from './DashboardPage'
+import AdminApp from './AdminApp'
 
 // 백엔드가 없어서, 일단 이 비밀번호로만 로그인되게 해둔 거예요.
 const ADMIN_PASSWORD = 'admin1234'
@@ -41,7 +41,7 @@ function LoginPage() {
   }
 
   if (isLoggedIn) {
-    return <DashboardPage onLogout={handleLogout} />
+    return <AdminApp onLogout={handleLogout} />
   }
 
   return (

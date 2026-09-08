@@ -1,16 +1,27 @@
 import ongilLogo from '../assets/ongil-logo.png'
 
-const NAV_ITEMS = ['운영 대시보드', '정류장 관리', '스마트 패드 관리', '버스 데이터 관리', '서비스 이용 통계']
+export type PageKey =
+  | '운영 대시보드'
+  | '정류장 관리'
+  | '스마트 패드 관리'
+  | '버스 데이터 관리'
+  | '서비스 이용 통계'
 
-const NAV_ICONS: Record<string, string> = {
-  '운영 대시보드': '🖥️',
-  '정류장 관리': '📍',
-  '스마트 패드 관리': '📱',
-  '버스 데이터 관리': '🚌',
-  '서비스 이용 통계': '📊',
-}
+const NAV_ITEMS: { key: PageKey; icon: string; enabled: boolean }[] = [
+  { key: '운영 대시보드', icon: '🖥️', enabled: true },
+  { key: '정류장 관리', icon: '📍', enabled: true },
+  { key: '스마트 패드 관리', icon: '📱', enabled: false },
+  { key: '버스 데이터 관리', icon: '🚌', enabled: false },
+  { key: '서비스 이용 통계', icon: '📊', enabled: false },
+]
 
-function Sidebar({ active }: { active: string }) {
+function Sidebar({
+  active,
+  onNavigate,
+}: {
+  active: PageKey
+  onNavigate: (page: PageKey) => void
+}) {
   return (
     <aside className="flex w-56 shrink-0 flex-col border-r border-slate-200 bg-white">
       <div className="flex items-center gap-2 border-b border-slate-200 px-5 py-4">
@@ -23,15 +34,22 @@ function Sidebar({ active }: { active: string }) {
 
       <nav className="flex flex-col gap-1 p-3">
         {NAV_ITEMS.map((item) => (
-          <div
-            key={item}
-            className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm ${
-              item === active ? 'bg-amber-50 font-semibold text-amber-700' : 'text-slate-600'
+          <button
+            key={item.key}
+            type="button"
+            disabled={!item.enabled}
+            onClick={() => onNavigate(item.key)}
+            className={`flex items-center gap-2 rounded-lg px-3 py-2 text-left text-sm transition ${
+              item.key === active
+                ? 'bg-amber-50 font-semibold text-amber-700'
+                : item.enabled
+                  ? 'text-slate-600 hover:bg-slate-50'
+                  : 'cursor-not-allowed text-slate-300'
             }`}
           >
-            <span>{NAV_ICONS[item]}</span>
-            {item}
-          </div>
+            <span>{item.icon}</span>
+            {item.key}
+          </button>
         ))}
       </nav>
     </aside>
