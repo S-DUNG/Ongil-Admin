@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import ongilLogo from '../assets/ongil-logo.png'
 import ongilLetterLogo from '../assets/ongil-letter-logo.png'
+import DashboardPage from './DashboardPage'
 
 // 백엔드가 없어서, 일단 이 비밀번호로만 로그인되게 해둔 거예요.
 const ADMIN_PASSWORD = 'admin1234'
@@ -40,20 +41,7 @@ function LoginPage() {
   }
 
   if (isLoggedIn) {
-    return (
-      <main className="flex min-h-screen flex-col items-center justify-center gap-2 bg-white">
-        <img src={ongilLogo} alt="온길 로고" className="h-20 w-20 object-contain" />
-        <h1 className="text-xl font-bold text-slate-900">관리자 대시보드</h1>
-        <p className="text-sm text-slate-500">로그인 성공!</p>
-        <button
-          type="button"
-          onClick={handleLogout}
-          className="mt-4 rounded-full border border-amber-200 bg-amber-50 px-5 py-2 text-sm font-medium text-slate-700 transition hover:bg-amber-100"
-        >
-          로그아웃
-        </button>
-      </main>
-    )
+    return <DashboardPage onLogout={handleLogout} />
   }
 
   return (
