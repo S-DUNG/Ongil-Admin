@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react'
-import BusLogo from '../components/BusLogo'
+import ongilLogo from '../assets/ongil-logo.png'
+import ongilLetterLogo from '../assets/ongil-letter-logo.png'
 
 // 백엔드가 없어서, 일단 이 비밀번호로만 로그인되게 해둔 거예요.
 const ADMIN_PASSWORD = 'admin1234'
@@ -41,7 +42,7 @@ function LoginPage() {
   if (isLoggedIn) {
     return (
       <main className="flex min-h-screen flex-col items-center justify-center gap-2 bg-white">
-        <BusLogo className="h-20 w-20" />
+        <img src={ongilLogo} alt="온길 로고" className="h-20 w-20 object-contain" />
         <h1 className="text-xl font-bold text-slate-900">관리자 대시보드</h1>
         <p className="text-sm text-slate-500">로그인 성공!</p>
         <button
@@ -57,8 +58,8 @@ function LoginPage() {
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center gap-4 bg-white px-4">
-      <BusLogo className="h-24 w-24" />
-      <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">온길</h1>
+      <img src={ongilLogo} alt="온길 로고" className="h-24 w-24 object-contain" />
+      <img src={ongilLetterLogo} alt="온길" className="h-8 object-contain" />
 
       <form
         onSubmit={handleSubmit}
