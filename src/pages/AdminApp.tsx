@@ -5,6 +5,7 @@ import StationsPage from './StationsPage'
 import SmartPadsPage from './SmartPadsPage'
 import BusesPage from './BusesPage'
 import UsageStatsPage from './UsageStatsPage'
+import { UserIcon } from '../components/icons'
 
 function AdminApp({ onLogout }: { onLogout: () => void }) {
   const [page, setPage] = useState<PageKey>('운영 대시보드')
@@ -18,7 +19,7 @@ function AdminApp({ onLogout }: { onLogout: () => void }) {
           <h1 className="text-lg font-bold text-slate-900">{page}</h1>
           <div className="flex items-center gap-2">
             <span className="flex items-center gap-1.5 rounded-full border border-slate-200 px-3 py-1.5 text-sm text-slate-600">
-              <span>👤</span> 관리자
+              <UserIcon className="h-4 w-4" /> 관리자
             </span>
             <button
               type="button"

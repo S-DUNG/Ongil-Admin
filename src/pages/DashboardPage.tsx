@@ -1,9 +1,11 @@
+import { PinIcon, TabletIcon, CheckCircleIcon, WarningIcon } from '../components/icons'
+
 // 백엔드 연동 전이라 화면 확인용 mock 데이터입니다.
 const STATS = [
-  { label: '전체 정류장', value: 142, icon: '🚏', valueClassName: 'text-slate-900' },
-  { label: '전체 스마트패드', value: 128, icon: '📱', valueClassName: 'text-slate-900' },
-  { label: '정상 작동 (NORMAL)', value: 120, icon: '✅', valueClassName: 'text-emerald-600' },
-  { label: '점검/고장', value: 8, icon: '⚠️', valueClassName: 'text-red-500' },
+  { label: '전체 정류장', value: 142, Icon: PinIcon, valueClassName: 'text-slate-900' },
+  { label: '전체 스마트패드', value: 128, Icon: TabletIcon, valueClassName: 'text-slate-900' },
+  { label: '정상 작동 (NORMAL)', value: 120, Icon: CheckCircleIcon, valueClassName: 'text-emerald-600' },
+  { label: '점검/고장', value: 8, Icon: WarningIcon, valueClassName: 'text-red-500' },
 ]
 
 const RECENT_STATIONS = [
@@ -30,7 +32,7 @@ function DashboardPage() {
           <div key={stat.label} className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
             <div className="flex items-center justify-between">
               <p className="text-xs text-slate-500">{stat.label}</p>
-              <span>{stat.icon}</span>
+              <stat.Icon className="h-4 w-4 text-slate-400" />
             </div>
             <p className={`mt-2 text-2xl font-bold ${stat.valueClassName}`}>{stat.value}</p>
           </div>

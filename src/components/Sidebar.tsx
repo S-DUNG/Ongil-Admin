@@ -1,4 +1,5 @@
 import ongilLogo from '../assets/ongil-logo.png'
+import { DashboardIcon, PinIcon, TabletIcon, BusIcon, ChartIcon } from './icons'
 
 export type PageKey =
   | '운영 대시보드'
@@ -7,12 +8,12 @@ export type PageKey =
   | '버스 데이터 관리'
   | '서비스 이용 통계'
 
-const NAV_ITEMS: { key: PageKey; icon: string; enabled: boolean }[] = [
-  { key: '운영 대시보드', icon: '🖥️', enabled: true },
-  { key: '정류장 관리', icon: '📍', enabled: true },
-  { key: '스마트 패드 관리', icon: '📱', enabled: true },
-  { key: '버스 데이터 관리', icon: '🚌', enabled: true },
-  { key: '서비스 이용 통계', icon: '📊', enabled: true },
+const NAV_ITEMS: { key: PageKey; Icon: typeof DashboardIcon; enabled: boolean }[] = [
+  { key: '운영 대시보드', Icon: DashboardIcon, enabled: true },
+  { key: '정류장 관리', Icon: PinIcon, enabled: true },
+  { key: '스마트 패드 관리', Icon: TabletIcon, enabled: true },
+  { key: '버스 데이터 관리', Icon: BusIcon, enabled: true },
+  { key: '서비스 이용 통계', Icon: ChartIcon, enabled: true },
 ]
 
 function Sidebar({
@@ -37,22 +38,22 @@ function Sidebar({
       </button>
 
       <nav className="flex flex-col gap-1 p-3">
-        {NAV_ITEMS.map((item) => (
+        {NAV_ITEMS.map(({ key, Icon, enabled }) => (
           <button
-            key={item.key}
+            key={key}
             type="button"
-            disabled={!item.enabled}
-            onClick={() => onNavigate(item.key)}
+            disabled={!enabled}
+            onClick={() => onNavigate(key)}
             className={`flex items-center gap-2 rounded-lg px-3 py-2 text-left text-sm transition ${
-              item.key === active
+              key === active
                 ? 'bg-amber-50 font-semibold text-amber-700'
-                : item.enabled
+                : enabled
                   ? 'text-slate-600 hover:bg-slate-50'
                   : 'cursor-not-allowed text-slate-300'
             }`}
           >
-            <span>{item.icon}</span>
-            {item.key}
+            <Icon className="h-4 w-4 shrink-0" />
+            {key}
           </button>
         ))}
       </nav>
