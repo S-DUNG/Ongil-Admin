@@ -1,5 +1,9 @@
 @import 'tailwindcss';
 
+@theme {
+  --color-accent: #fff2b2;
+}
+
 :root {
   font-family: 'Pretendard', 'Noto Sans KR', Arial, sans-serif;
 

@@ -121,7 +121,7 @@ function StationsPage() {
         <button
           type="button"
           onClick={openAddForm}
-          className="rounded-lg bg-amber-400 px-4 py-2 text-sm font-semibold text-white transition hover:bg-amber-500"
+          className="rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-slate-900 transition hover:brightness-95"
         >
           + 새 정류장 추가
         </button>
@@ -214,7 +214,7 @@ function StationsPage() {
                   required
                   value={form.name}
                   onChange={(event) => setForm({ ...form, name: event.target.value })}
-                  className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-amber-400/30"
+                  className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-accent/60"
                 />
               </div>
 
@@ -224,7 +224,7 @@ function StationsPage() {
                   required
                   value={form.address}
                   onChange={(event) => setForm({ ...form, address: event.target.value })}
-                  className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-amber-400/30"
+                  className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-accent/60"
                 />
               </div>
 
@@ -235,7 +235,7 @@ function StationsPage() {
                   onChange={(event) =>
                     setForm({ ...form, status: event.target.value as '정상' | '점검' })
                   }
-                  className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-amber-400/30"
+                  className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-accent/60"
                 >
                   <option value="정상">정상</option>
                   <option value="점검">점검</option>
@@ -262,7 +262,7 @@ function StationsPage() {
               </button>
               <button
                 type="submit"
-                className="flex-1 rounded-lg bg-amber-400 py-2 text-sm font-semibold text-white hover:bg-amber-500"
+                className="flex-1 rounded-lg bg-accent py-2 text-sm font-semibold text-slate-900 hover:brightness-95"
               >
                 {editingId ? '수정 완료' : '추가'}
               </button>

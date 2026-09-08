@@ -46,7 +46,7 @@ function Sidebar({
             onClick={() => onNavigate(key)}
             className={`flex items-center gap-2 rounded-lg px-3 py-2 text-left text-sm transition ${
               key === active
-                ? 'bg-amber-50 font-semibold text-amber-700'
+                ? 'bg-accent/40 font-semibold text-slate-900'
                 : enabled
                   ? 'text-slate-600 hover:bg-slate-50'
                   : 'cursor-not-allowed text-slate-300'

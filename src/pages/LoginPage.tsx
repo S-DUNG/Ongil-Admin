@@ -54,10 +54,10 @@ function LoginPage() {
         onSubmit={handleSubmit}
         className="mt-6 flex w-full max-w-md flex-col items-center gap-2"
       >
-        <div className="flex w-full items-center gap-3 rounded-full border border-amber-200 bg-amber-50/70 px-5 py-3">
+        <div className="flex w-full items-center gap-3 rounded-full border border-accent bg-accent/40 px-5 py-3">
           <svg
             viewBox="0 0 20 20"
-            className="h-4 w-4 shrink-0 text-amber-700/60"
+            className="h-4 w-4 shrink-0 text-slate-500"
             fill="none"
             stroke="currentColor"
           >
@@ -73,14 +73,14 @@ function LoginPage() {
             value={password}
             onChange={(event) => setPassword(event.target.value)}
             placeholder="관리자 비밀번호를 입력하시오."
-            className="flex-1 bg-transparent text-sm text-slate-800 outline-none placeholder:text-amber-700/50"
+            className="flex-1 bg-transparent text-sm text-slate-800 outline-none placeholder:text-slate-400"
           />
 
           <button
             type="button"
             onClick={() => setShowPassword((value) => !value)}
             aria-label={showPassword ? '비밀번호 숨기기' : '비밀번호 보기'}
-            className="shrink-0 text-amber-700/60 hover:text-amber-700"
+            className="shrink-0 text-slate-500 hover:text-slate-700"
           >
             {showPassword ? (
               <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" stroke="currentColor">
@@ -109,7 +109,7 @@ function LoginPage() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="shrink-0 rounded-full bg-amber-400 px-5 py-1.5 text-sm font-semibold text-white transition hover:bg-amber-500 disabled:cursor-not-allowed disabled:opacity-60"
+            className="shrink-0 rounded-full bg-accent px-5 py-1.5 text-sm font-semibold text-slate-900 transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isSubmitting ? '확인 중...' : '로그인'}
           </button>

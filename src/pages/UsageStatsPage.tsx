@@ -90,7 +90,7 @@ function UsageStatsPage() {
             onClick={() => setPeriod(item)}
             className={`rounded-full px-4 py-1.5 text-sm font-medium transition ${
               item === period
-                ? 'bg-amber-400 text-white'
+                ? 'bg-accent text-slate-900'
                 : 'border border-slate-200 text-slate-600 hover:bg-slate-50'
             }`}
           >
@@ -110,11 +110,11 @@ function UsageStatsPage() {
         </div>
         <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
           <p className="text-xs text-slate-500">최다 이용 정류장</p>
-          <p className="mt-2 text-2xl font-bold text-amber-600">{summary.topStation}</p>
+          <p className="mt-2 text-2xl font-bold text-slate-900">{summary.topStation}</p>
         </div>
         <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
           <p className="text-xs text-slate-500">최다 이용 시간대</p>
-          <p className="mt-2 text-2xl font-bold text-amber-600">{summary.topHour}</p>
+          <p className="mt-2 text-2xl font-bold text-slate-900">{summary.topHour}</p>
         </div>
       </div>
 
@@ -129,7 +129,7 @@ function UsageStatsPage() {
                 <span className="text-[11px] text-slate-500">{item.count}</span>
                 <div className="flex h-28 w-full items-end">
                   <div
-                    className="w-full rounded-t bg-amber-400"
+                    className="w-full rounded-t bg-accent"
                     style={{ height: `${(item.count / maxHourly) * 100}%` }}
                   />
                 </div>
@@ -152,7 +152,7 @@ function UsageStatsPage() {
                 </div>
                 <div className="h-2 w-full rounded-full bg-slate-100">
                   <div
-                    className="h-2 rounded-full bg-amber-400"
+                    className="h-2 rounded-full bg-accent"
                     style={{ width: `${(item.count / maxStation) * 100}%` }}
                   />
                 </div>
