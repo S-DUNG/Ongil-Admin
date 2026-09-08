@@ -75,7 +75,6 @@ function nowString() {
 
 function SmartPadsPage() {
   const [pads, setPads] = useState<SmartPad[]>(INITIAL_PADS)
-  const [detailPad, setDetailPad] = useState<SmartPad | null>(null)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [form, setForm] = useState<FormState>(EMPTY_FORM)
@@ -119,9 +118,6 @@ function SmartPadsPage() {
     if (!confirmed) return
 
     setPads((prev) => prev.filter((item) => item.id !== pad.id))
-    if (detailPad?.id === pad.id) {
-      setDetailPad(null)
-    }
   }
 
   return (
@@ -177,13 +173,6 @@ function SmartPadsPage() {
                   <div className="flex gap-2 text-xs">
                     <button
                       type="button"
-                      onClick={() => setDetailPad(pad)}
-                      className="rounded border border-slate-200 px-2 py-1 text-slate-600 hover:bg-slate-50"
-                    >
-                      상세
-                    </button>
-                    <button
-                      type="button"
                       onClick={() => openEditForm(pad)}
                       className="rounded border border-slate-200 px-2 py-1 text-slate-600 hover:bg-slate-50"
                     >
@@ -211,43 +200,6 @@ function SmartPadsPage() {
           </tbody>
         </table>
       </div>
-
-      {detailPad && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/30 p-4">
-          <div className="w-full max-w-sm rounded-xl bg-white p-6 shadow-lg">
-            <h2 className="text-lg font-bold text-slate-900">{detailPad.serial}</h2>
-            <dl className="mt-4 space-y-2 text-sm">
-              <div className="flex justify-between">
-                <dt className="text-slate-400">ID</dt>
-                <dd className="text-slate-700">{detailPad.id}</dd>
-              </div>
-              <div className="flex justify-between">
-                <dt className="text-slate-400">설치 정류장</dt>
-                <dd className="text-slate-700">{detailPad.stationName}</dd>
-              </div>
-              <div className="flex justify-between">
-                <dt className="text-slate-400">배터리</dt>
-                <dd className="text-slate-700">{detailPad.batteryLevel}%</dd>
-              </div>
-              <div className="flex justify-between">
-                <dt className="text-slate-400">상태</dt>
-                <dd className="text-slate-700">{detailPad.status}</dd>
-              </div>
-              <div className="flex justify-between">
-                <dt className="text-slate-400">등록일</dt>
-                <dd className="text-slate-700">{detailPad.createdAt}</dd>
-              </div>
-            </dl>
-            <button
-              type="button"
-              onClick={() => setDetailPad(null)}
-              className="mt-6 w-full rounded-lg border border-slate-200 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50"
-            >
-              닫기
-            </button>
-          </div>
-        </div>
-      )}
 
       {isFormOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/30 p-4">

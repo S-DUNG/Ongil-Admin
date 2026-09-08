@@ -67,7 +67,6 @@ function nowString() {
 
 function StationsPage() {
   const [stations, setStations] = useState<Station[]>(INITIAL_STATIONS)
-  const [detailStation, setDetailStation] = useState<Station | null>(null)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [form, setForm] = useState<FormState>(EMPTY_FORM)
@@ -113,9 +112,6 @@ function StationsPage() {
     if (!confirmed) return
 
     setStations((prev) => prev.filter((item) => item.id !== station.id))
-    if (detailStation?.id === station.id) {
-      setDetailStation(null)
-    }
   }
 
   return (
@@ -173,13 +169,6 @@ function StationsPage() {
                   <div className="flex gap-2 text-xs">
                     <button
                       type="button"
-                      onClick={() => setDetailStation(station)}
-                      className="rounded border border-slate-200 px-2 py-1 text-slate-600 hover:bg-slate-50"
-                    >
-                      상세
-                    </button>
-                    <button
-                      type="button"
                       onClick={() => openEditForm(station)}
                       className="rounded border border-slate-200 px-2 py-1 text-slate-600 hover:bg-slate-50"
                     >
@@ -207,43 +196,6 @@ function StationsPage() {
           </tbody>
         </table>
       </div>
-
-      {detailStation && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/30 p-4">
-          <div className="w-full max-w-sm rounded-xl bg-white p-6 shadow-lg">
-            <h2 className="text-lg font-bold text-slate-900">{detailStation.name}</h2>
-            <dl className="mt-4 space-y-2 text-sm">
-              <div className="flex justify-between">
-                <dt className="text-slate-400">ID</dt>
-                <dd className="text-slate-700">{detailStation.id}</dd>
-              </div>
-              <div className="flex justify-between">
-                <dt className="text-slate-400">주소</dt>
-                <dd className="text-slate-700">{detailStation.address}</dd>
-              </div>
-              <div className="flex justify-between">
-                <dt className="text-slate-400">스마트패드</dt>
-                <dd className="text-slate-700">{detailStation.padInstalled ? '설치됨' : '미설치'}</dd>
-              </div>
-              <div className="flex justify-between">
-                <dt className="text-slate-400">상태</dt>
-                <dd className="text-slate-700">{detailStation.status}</dd>
-              </div>
-              <div className="flex justify-between">
-                <dt className="text-slate-400">등록일</dt>
-                <dd className="text-slate-700">{detailStation.createdAt}</dd>
-              </div>
-            </dl>
-            <button
-              type="button"
-              onClick={() => setDetailStation(null)}
-              className="mt-6 w-full rounded-lg border border-slate-200 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50"
-            >
-              닫기
-            </button>
-          </div>
-        </div>
-      )}
 
       {isFormOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/30 p-4">
