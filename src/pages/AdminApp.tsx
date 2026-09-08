@@ -2,6 +2,7 @@ import { useState } from 'react'
 import Sidebar, { type PageKey } from '../components/Sidebar'
 import DashboardPage from './DashboardPage'
 import StationsPage from './StationsPage'
+import SmartPadsPage from './SmartPadsPage'
 
 function AdminApp({ onLogout }: { onLogout: () => void }) {
   const [page, setPage] = useState<PageKey>('운영 대시보드')
@@ -25,6 +26,7 @@ function AdminApp({ onLogout }: { onLogout: () => void }) {
         <main className="p-8">
           {page === '운영 대시보드' && <DashboardPage />}
           {page === '정류장 관리' && <StationsPage />}
+          {page === '스마트 패드 관리' && <SmartPadsPage />}
         </main>
       </div>
     </div>

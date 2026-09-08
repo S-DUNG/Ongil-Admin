@@ -10,7 +10,7 @@ export type PageKey =
 const NAV_ITEMS: { key: PageKey; icon: string; enabled: boolean }[] = [
   { key: '운영 대시보드', icon: '🖥️', enabled: true },
   { key: '정류장 관리', icon: '📍', enabled: true },
-  { key: '스마트 패드 관리', icon: '📱', enabled: false },
+  { key: '스마트 패드 관리', icon: '📱', enabled: true },
   { key: '버스 데이터 관리', icon: '🚌', enabled: false },
   { key: '서비스 이용 통계', icon: '📊', enabled: false },
 ]
