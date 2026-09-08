@@ -5,7 +5,6 @@ import StationsPage from './StationsPage'
 import SmartPadsPage from './SmartPadsPage'
 import BusesPage from './BusesPage'
 import UsageStatsPage from './UsageStatsPage'
-import RequestStatsPage from './RequestStatsPage'
 
 function AdminApp({ onLogout }: { onLogout: () => void }) {
   const [page, setPage] = useState<PageKey>('운영 대시보드')
@@ -32,7 +31,6 @@ function AdminApp({ onLogout }: { onLogout: () => void }) {
           {page === '스마트 패드 관리' && <SmartPadsPage />}
           {page === '버스 데이터 관리' && <BusesPage />}
           {page === '서비스 이용 통계' && <UsageStatsPage />}
-          {page === '요청 통계' && <RequestStatsPage />}
         </main>
       </div>
     </div>
