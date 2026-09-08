@@ -24,13 +24,17 @@ function Sidebar({
 }) {
   return (
     <aside className="flex w-56 shrink-0 flex-col border-r border-slate-200 bg-white">
-      <div className="flex items-center gap-2 border-b border-slate-200 px-5 py-4">
+      <button
+        type="button"
+        onClick={() => onNavigate('운영 대시보드')}
+        className="flex items-center gap-2 border-b border-slate-200 px-5 py-4 text-left transition hover:bg-slate-50"
+      >
         <img src={ongilLogo} alt="온길" className="h-8 w-8 object-contain" />
         <div>
           <p className="text-sm font-bold text-slate-900">온길</p>
           <p className="text-[10px] tracking-wide text-slate-400">ONGIL SMART STATION</p>
         </div>
-      </div>
+      </button>
 
       <nav className="flex flex-col gap-1 p-3">
         {NAV_ITEMS.map((item) => (
