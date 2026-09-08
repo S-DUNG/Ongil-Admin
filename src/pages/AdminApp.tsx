@@ -16,13 +16,18 @@ function AdminApp({ onLogout }: { onLogout: () => void }) {
       <div className="flex-1">
         <header className="flex items-center justify-between border-b border-slate-200 bg-white px-8 py-4">
           <h1 className="text-lg font-bold text-slate-900">{page}</h1>
-          <button
-            type="button"
-            onClick={onLogout}
-            className="flex items-center gap-1.5 rounded-full border border-slate-200 px-3 py-1.5 text-sm text-slate-600 transition hover:bg-slate-50"
-          >
-            <span>👤</span> 관리자
-          </button>
+          <div className="flex items-center gap-2">
+            <span className="flex items-center gap-1.5 rounded-full border border-slate-200 px-3 py-1.5 text-sm text-slate-600">
+              <span>👤</span> 관리자
+            </span>
+            <button
+              type="button"
+              onClick={onLogout}
+              className="rounded-full border border-slate-200 px-3 py-1.5 text-sm text-slate-600 transition hover:bg-slate-50"
+            >
+              로그아웃
+            </button>
+          </div>
         </header>
 
         <main className="p-8">
