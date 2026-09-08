@@ -3,6 +3,7 @@ import Sidebar, { type PageKey } from '../components/Sidebar'
 import DashboardPage from './DashboardPage'
 import StationsPage from './StationsPage'
 import SmartPadsPage from './SmartPadsPage'
+import BusesPage from './BusesPage'
 
 function AdminApp({ onLogout }: { onLogout: () => void }) {
   const [page, setPage] = useState<PageKey>('운영 대시보드')
@@ -27,6 +28,7 @@ function AdminApp({ onLogout }: { onLogout: () => void }) {
           {page === '운영 대시보드' && <DashboardPage />}
           {page === '정류장 관리' && <StationsPage />}
           {page === '스마트 패드 관리' && <SmartPadsPage />}
+          {page === '버스 데이터 관리' && <BusesPage />}
         </main>
       </div>
     </div>
