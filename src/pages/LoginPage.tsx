@@ -11,6 +11,7 @@ function LoginPage() {
   const [error, setError] = useState('')
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -66,7 +67,7 @@ function LoginPage() {
 
           <input
             id="password"
-            type="password"
+            type={showPassword ? 'text' : 'password'}
             autoFocus
             autoComplete="current-password"
             value={password}
@@ -74,6 +75,36 @@ function LoginPage() {
             placeholder="관리자 비밀번호를 입력하시오."
             className="flex-1 bg-transparent text-sm text-slate-800 outline-none placeholder:text-amber-700/50"
           />
+
+          <button
+            type="button"
+            onClick={() => setShowPassword((value) => !value)}
+            aria-label={showPassword ? '비밀번호 숨기기' : '비밀번호 보기'}
+            className="shrink-0 text-amber-700/60 hover:text-amber-700"
+          >
+            {showPassword ? (
+              <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" stroke="currentColor">
+                <path
+                  d="M2.5 10s2.917-5.417 7.5-5.417S17.5 10 17.5 10s-2.917 5.417-7.5 5.417S2.5 10 2.5 10Z"
+                  strokeWidth="1.4"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <circle cx="10" cy="10" r="2" strokeWidth="1.4" />
+              </svg>
+            ) : (
+              <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" stroke="currentColor">
+                <path
+                  d="M2.5 10s2.917-5.417 7.5-5.417S17.5 10 17.5 10s-2.917 5.417-7.5 5.417S2.5 10 2.5 10Z"
+                  strokeWidth="1.4"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <circle cx="10" cy="10" r="2" strokeWidth="1.4" />
+                <path d="M3.5 3.5l13 13" strokeWidth="1.4" strokeLinecap="round" />
+              </svg>
+            )}
+          </button>
 
           <button
             type="submit"
