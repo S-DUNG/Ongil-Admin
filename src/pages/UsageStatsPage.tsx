@@ -129,7 +129,7 @@ function UsageStatsPage() {
                 <span className="text-[11px] text-slate-500">{item.count}</span>
                 <div className="flex h-28 w-full items-end">
                   <div
-                    className="w-full rounded-t bg-amber-500"
+                    className="w-full rounded-t bg-amber-400"
                     style={{ height: `${(item.count / maxHourly) * 100}%` }}
                   />
                 </div>
@@ -152,7 +152,7 @@ function UsageStatsPage() {
                 </div>
                 <div className="h-2 w-full rounded-full bg-slate-100">
                   <div
-                    className="h-2 rounded-full bg-sky-500"
+                    className="h-2 rounded-full bg-amber-400"
                     style={{ width: `${(item.count / maxStation) * 100}%` }}
                   />
                 </div>
