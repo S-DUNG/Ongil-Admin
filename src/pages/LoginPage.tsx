@@ -47,14 +47,13 @@ function LoginPage() {
 
     return (
     <main className="flex min-h-screen items-center justify-center bg-cream px-4">
-      <div className="flex w-full max-w-md flex-col items-center gap-4 rounded-2xl bg-white p-10 shadow-sm">
+        <div className="flex w-full max-w-lg flex-col items-center gap-4 rounded-2xl bg-white p-8 shadow-sm">
         <img src={ongilLogo} alt="온길 로고" className="h-24 w-24 object-contain" />
         <img src={ongilLetterLogo} alt="온길" className="h-8 object-contain" />
 
         <form
           onSubmit={handleSubmit}
-          className="mt-2 flex w-full flex-col items-center gap-2"
-        >
+          className="mt-6 flex w-full flex-col items-center gap-2">
           <div className="flex w-full items-center gap-3 rounded-full border border-accent bg-accent/40 px-5 py-3">
             <svg
               viewBox="0 0 20 20"
