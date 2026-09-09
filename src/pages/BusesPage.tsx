@@ -127,7 +127,7 @@ function BusesPage() {
         <button
           type="button"
           onClick={openAddForm}
-          className="rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-slate-900 transition hover:brightness-95"
+          className="rounded-lg bg-accent px-3 py-1.5 text-xs font-semibold text-slate-900 transition hover:brightness-95"
         >
           + 새 버스 추가
         </button>
