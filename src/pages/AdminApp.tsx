@@ -11,12 +11,12 @@ function AdminApp({ onLogout }: { onLogout: () => void }) {
   const [page, setPage] = useState<PageKey>('운영 대시보드')
 
   return (
-    <div className="flex min-h-screen bg-slate-50">
+    <div className="flex min-h-screen bg-cream">
       <Sidebar active={page} onNavigate={setPage} />
 
       <div className="flex-1">
         <header className="flex items-center justify-between border-b border-slate-200 bg-white px-8 py-4">
-          <h1 className="text-lg font-bold text-slate-900">{page}</h1>
+          <h1 className="text-lg font-bold text-ink">{page}</h1>
           <div className="flex items-center gap-2">
             <span className="flex items-center gap-1.5 rounded-full border border-slate-200 px-3 py-1.5 text-sm text-slate-600">
               <UserIcon className="h-4 w-4" /> 관리자

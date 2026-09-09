@@ -46,7 +46,7 @@ function LoginPage() {
   }
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center gap-4 bg-white px-4">
+    <main className="flex min-h-screen flex-col items-center justify-center gap-4 bg-cream px-4">
       <img src={ongilLogo} alt="온길 로고" className="h-24 w-24 object-contain" />
       <img src={ongilLetterLogo} alt="온길" className="h-8 object-contain" />
 

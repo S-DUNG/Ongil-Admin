@@ -32,7 +32,7 @@ function Sidebar({
       >
         <img src={ongilLogo} alt="온길" className="h-8 w-8 object-contain" />
         <div>
-          <p className="text-sm font-bold text-slate-900">온길</p>
+          <p className="text-sm font-bold text-ink">온길</p>
           <p className="text-[10px] tracking-wide text-slate-400">ONGIL SMART STATION</p>
         </div>
       </button>

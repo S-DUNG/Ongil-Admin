@@ -1,14 +1,16 @@
 @import 'tailwindcss';
 
 @theme {
-  --color-accent: #fff2b2;
+  --color-accent: #ffeea0;
+  --color-cream: #f7f3ec;
+  --color-ink: #695c4a;
 }
 
 :root {
   font-family: 'Pretendard', 'Noto Sans KR', Arial, sans-serif;
 
   color: #111111;
-  background: #f7f7f5;
+  background: #f7f3ec;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -29,7 +31,7 @@ body,
 
 body {
   min-width: 320px;
-  background: #f7f7f5;
+  background: #f7f3ec;
 }
 
 button,
