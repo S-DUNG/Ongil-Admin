@@ -1,0 +1,64 @@
+import ongilLogo from '../assets/ongil-logo.png'
+import { DashboardIcon, PinIcon, TabletIcon, BusIcon, ChartIcon } from './icons'
+
+export type PageKey =
+  | '운영 대시보드'
+  | '정류장 관리'
+  | '스마트 패드 관리'
+  | '버스 데이터 관리'
+  | '서비스 이용 통계'
+
+const NAV_ITEMS: { key: PageKey; Icon: typeof DashboardIcon; enabled: boolean }[] = [
+  { key: '운영 대시보드', Icon: DashboardIcon, enabled: true },
+  { key: '정류장 관리', Icon: PinIcon, enabled: true },
+  { key: '스마트 패드 관리', Icon: TabletIcon, enabled: true },
+  { key: '버스 데이터 관리', Icon: BusIcon, enabled: true },
+  { key: '서비스 이용 통계', Icon: ChartIcon, enabled: true },
+]
+
+function Sidebar({
+  active,
+  onNavigate,
+}: {
+  active: PageKey
+  onNavigate: (page: PageKey) => void
+}) {
+  return (
+    <aside className="flex w-56 shrink-0 flex-col border-r border-slate-200 bg-white">
+      <button
+        type="button"
+        onClick={() => onNavigate('운영 대시보드')}
+        className="flex items-center gap-2 border-b border-slate-200 px-5 py-4 text-left transition hover:bg-slate-50"
+      >
+        <img src={ongilLogo} alt="온길" className="h-8 w-8 object-contain" />
+        <div>
+          <p className="text-sm font-bold text-ink">온길</p>
+          <p className="text-[10px] tracking-wide text-slate-400">ONGIL SMART STATION</p>
+        </div>
+      </button>
+
+      <nav className="flex flex-col gap-1 p-3">
+        {NAV_ITEMS.map(({ key, Icon, enabled }) => (
+          <button
+            key={key}
+            type="button"
+            disabled={!enabled}
+            onClick={() => onNavigate(key)}
+            className={`flex items-center gap-2 rounded-lg px-3 py-2 text-left text-sm transition ${
+              key === active
+                ? 'bg-accent/40 font-semibold text-slate-900'
+                : enabled
+                  ? 'text-slate-600 hover:bg-slate-50'
+                  : 'cursor-not-allowed text-slate-300'
+            }`}
+          >
+            <Icon className="h-4 w-4 shrink-0" />
+            {key}
+          </button>
+        ))}
+      </nav>
+    </aside>
+  )
+}
+
+export default Sidebar
