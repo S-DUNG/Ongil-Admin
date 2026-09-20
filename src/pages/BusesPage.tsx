@@ -1,7 +1,9 @@
-import { useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
+import { apiRequest } from '../api/client'
 
 type BusStatus = '운행중' | '운행종료' | '점검'
 
+// TODO: 실제 응답 필드명이 다르면 여기 타입과 bus.xxx로 읽는 부분들을 맞춰서 고쳐야 합니다.
 type Bus = {
   id: string
   busNumber: string
@@ -10,49 +12,6 @@ type Bus = {
   status: BusStatus
   createdAt: string
 }
-
-const INITIAL_BUSES: Bus[] = [
-  {
-    id: 'BUS-01',
-    busNumber: '123',
-    destination: '수완지구 방면',
-    lowFloor: true,
-    status: '운행중',
-    createdAt: '2026-09-08 09:30',
-  },
-  {
-    id: 'BUS-02',
-    busNumber: '38',
-    destination: '첨단지구 방면',
-    lowFloor: false,
-    status: '운행중',
-    createdAt: '2026-09-08 09:10',
-  },
-  {
-    id: 'BUS-03',
-    busNumber: '용전187',
-    destination: '광주송정역 방면',
-    lowFloor: true,
-    status: '점검',
-    createdAt: '2026-09-07 14:20',
-  },
-  {
-    id: 'BUS-04',
-    busNumber: '419',
-    destination: '상무지구 방면',
-    lowFloor: true,
-    status: '운행중',
-    createdAt: '2026-09-07 11:45',
-  },
-  {
-    id: 'BUS-05',
-    busNumber: '금남58',
-    destination: '금남로 방면',
-    lowFloor: false,
-    status: '운행종료',
-    createdAt: '2026-09-06 16:30',
-  },
-]
 
 type FormState = {
   busNumber: string
@@ -74,10 +33,31 @@ function nowString() {
 }
 
 function BusesPage() {
-  const [buses, setBuses] = useState<Bus[]>(INITIAL_BUSES)
+  const [buses, setBuses] = useState<Bus[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState('')
   const [editingId, setEditingId] = useState<string | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [form, setForm] = useState<FormState>(EMPTY_FORM)
+
+  async function loadBuses() {
+    setIsLoading(true)
+    setError('')
+    try {
+      // TODO: 응답이 { data: [...] } 형태로 감싸져 있으면 apiRequest<{ data: Bus[] }>로 바꾸고 data.data를 쓰세요.
+      const data = await apiRequest<Bus[]>('/manage/bus-data')
+      setBuses(data)
+    } catch {
+      setError('버스 데이터를 불러오지 못했습니다.')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- 마운트 시 최초 목록 조회
+    loadBuses()
+  }, [])
 
   function openAddForm() {
     setEditingId(null)
@@ -100,6 +80,10 @@ function BusesPage() {
     setIsFormOpen(false)
   }
 
+  // API 명세에 버스 데이터 등록/수정/삭제 엔드포인트가 없어서(조회만 있음)
+  // 일단 로컬 상태만 바꿉니다. 백엔드에 해당 엔드포인트가 추가되면
+  // StationsPage.tsx / SmartPadsPage.tsx의 handleFormSubmit·handleDelete와
+  // 같은 패턴(apiRequest 호출 후 loadBuses() 재조회)으로 바꾸면 됩니다.
   function handleFormSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
 
@@ -133,6 +117,8 @@ function BusesPage() {
         </button>
       </div>
 
+      {error && <p className="mt-3 text-xs text-red-500">{error}</p>}
+
       <div className="mt-4 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
         <table className="w-full text-left text-sm">
           <thead>
@@ -147,7 +133,15 @@ function BusesPage() {
             </tr>
           </thead>
           <tbody>
-            {buses.map((bus) => (
+            {isLoading && (
+              <tr>
+                <td colSpan={7} className="px-4 py-8 text-center text-sm text-slate-400">
+                  불러오는 중...
+                </td>
+              </tr>
+            )}
+
+            {!isLoading && buses.map((bus) => (
               <tr key={bus.id} className="border-b border-slate-100 last:border-0">
                 <td className="px-4 py-3 text-slate-500">{bus.id}</td>
                 <td className="px-4 py-3 font-medium text-slate-800">{bus.busNumber}</td>
@@ -188,7 +182,7 @@ function BusesPage() {
               </tr>
             ))}
 
-            {buses.length === 0 && (
+            {!isLoading && buses.length === 0 && (
               <tr>
                 <td colSpan={7} className="px-4 py-8 text-center text-sm text-slate-400">
                   등록된 버스가 없습니다.
