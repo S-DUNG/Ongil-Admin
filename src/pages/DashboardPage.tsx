@@ -1,4 +1,18 @@
+import { useEffect, useState } from 'react'
 import { PinIcon, TabletIcon, CheckCircleIcon, WarningIcon } from '../components/icons'
+import { apiRequest } from '../api/client'
+
+// TODO: /manage/dashboard 실제 응답 필드명 확인 후 DashboardResponse 타입과
+// 아래에서 값을 꺼내는 부분(totalStations 등)을 맞춰서 고치세요.
+// 확인 전까지는 요청 실패/필드 불일치 시 mock 값을 그대로 보여줍니다.
+type DashboardResponse = {
+  totalStations: number
+  totalSmartPads: number
+  normalCount: number
+  issueCount: number
+  recentStations: { id: string; name: string; createdAt: string }[]
+  recentSmartPads: { id: string; serial: string; createdAt: string }[]
+}
 
 // 백엔드 연동 전이라 화면 확인용 mock 데이터입니다.
 const STATS = [
@@ -25,10 +39,29 @@ const RECENT_PADS = [
 ]
 
 function DashboardPage() {
+  const [dashboard, setDashboard] = useState<DashboardResponse | null>(null)
+
+  useEffect(() => {
+    apiRequest<DashboardResponse>('/manage/dashboard')
+      .then(setDashboard)
+      .catch(() => setDashboard(null)) // 실패하면 아래 mock 값을 그대로 보여줍니다.
+  }, [])
+
+  const stats = dashboard
+    ? [
+        { label: '전체 정류장', value: dashboard.totalStations, Icon: PinIcon, valueClassName: 'text-slate-900' },
+        { label: '전체 스마트패드', value: dashboard.totalSmartPads, Icon: TabletIcon, valueClassName: 'text-slate-900' },
+        { label: '정상 작동 (NORMAL)', value: dashboard.normalCount, Icon: CheckCircleIcon, valueClassName: 'text-emerald-600' },
+        { label: '점검/고장', value: dashboard.issueCount, Icon: WarningIcon, valueClassName: 'text-red-500' },
+      ]
+    : STATS
+  const recentStations = dashboard?.recentStations ?? RECENT_STATIONS
+  const recentPads = dashboard?.recentSmartPads ?? RECENT_PADS
+
   return (
     <>
       <div className="grid grid-cols-4 gap-4">
-        {STATS.map((stat) => (
+        {stats.map((stat) => (
           <div key={stat.label} className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
             <div className="flex items-center justify-between">
               <p className="text-xs text-slate-500">{stat.label}</p>
@@ -52,7 +85,7 @@ function DashboardPage() {
               </tr>
             </thead>
             <tbody>
-              {RECENT_STATIONS.map((row) => (
+              {recentStations.map((row) => (
                 <tr key={row.id} className="border-t border-slate-100">
                   <td className="py-2 text-slate-500">{row.id}</td>
                   <td className="py-2 font-medium text-slate-800">{row.name}</td>
@@ -75,7 +108,7 @@ function DashboardPage() {
               </tr>
             </thead>
             <tbody>
-              {RECENT_PADS.map((row) => (
+              {recentPads.map((row) => (
                 <tr key={row.id} className="border-t border-slate-100">
                   <td className="py-2 text-slate-500">{row.id}</td>
                   <td className="py-2 font-medium text-slate-800">{row.serial}</td>

@@ -1,5 +1,8 @@
-import { useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
+import { apiRequest } from '../api/client'
 
+// TODO: 실제 응답 필드명이 다르면(예: stationId, isPadInstalled) 여기 타입과
+// 아래에서 station.xxx로 읽는 부분들을 맞춰서 고쳐야 합니다.
 type Station = {
   id: string
   name: string
@@ -8,49 +11,6 @@ type Station = {
   status: '정상' | '점검'
   createdAt: string
 }
-
-const INITIAL_STATIONS: Station[] = [
-  {
-    id: 'ST-01',
-    name: '광주송정역',
-    address: '광주 광산구 송정동 300',
-    padInstalled: true,
-    status: '정상',
-    createdAt: '2026-09-08 09:30',
-  },
-  {
-    id: 'ST-02',
-    name: '양동시장역',
-    address: '광주 서구 양동 20',
-    padInstalled: true,
-    status: '정상',
-    createdAt: '2026-09-08 09:15',
-  },
-  {
-    id: 'ST-03',
-    name: '송정역',
-    address: '광주 광산구 송정동 15',
-    padInstalled: false,
-    status: '점검',
-    createdAt: '2026-09-07 14:20',
-  },
-  {
-    id: 'ST-04',
-    name: '상무역',
-    address: '광주 서구 치평동 1200',
-    padInstalled: true,
-    status: '정상',
-    createdAt: '2026-09-07 11:45',
-  },
-  {
-    id: 'ST-05',
-    name: '금남로역',
-    address: '광주 동구 금남로 5가',
-    padInstalled: true,
-    status: '정상',
-    createdAt: '2026-09-06 16:30',
-  },
-]
 
 type FormState = {
   name: string
@@ -61,15 +21,32 @@ type FormState = {
 
 const EMPTY_FORM: FormState = { name: '', address: '', padInstalled: false, status: '정상' }
 
-function nowString() {
-  return new Date().toISOString().slice(0, 16).replace('T', ' ')
-}
-
 function StationsPage() {
-  const [stations, setStations] = useState<Station[]>(INITIAL_STATIONS)
+  const [stations, setStations] = useState<Station[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState('')
   const [editingId, setEditingId] = useState<string | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [form, setForm] = useState<FormState>(EMPTY_FORM)
+
+  async function loadStations() {
+    setIsLoading(true)
+    setError('')
+    try {
+      // TODO: 응답이 { data: [...] } 형태로 감싸져 있으면 apiRequest<{ data: Station[] }>로 바꾸고 data.data를 쓰세요.
+      const data = await apiRequest<Station[]>('/manage/stations')
+      setStations(data)
+    } catch {
+      setError('정류장 목록을 불러오지 못했습니다.')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- 마운트 시 최초 목록 조회
+    loadStations()
+  }, [])
 
   function openAddForm() {
     setEditingId(null)
@@ -92,26 +69,32 @@ function StationsPage() {
     setIsFormOpen(false)
   }
 
-  function handleFormSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleFormSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
 
-    if (editingId) {
-      setStations((prev) =>
-        prev.map((station) => (station.id === editingId ? { ...station, ...form } : station)),
-      )
-    } else {
-      const nextId = `ST-${String(stations.length + 1).padStart(2, '0')}`
-      setStations((prev) => [...prev, { id: nextId, createdAt: nowString(), ...form }])
+    try {
+      if (editingId) {
+        await apiRequest(`/manage/stations/${editingId}`, { method: 'PATCH', body: form })
+      } else {
+        await apiRequest('/manage/stations', { method: 'POST', body: form })
+      }
+      setIsFormOpen(false)
+      await loadStations()
+    } catch {
+      window.alert('저장에 실패했습니다. 잠시 후 다시 시도해주세요.')
     }
-
-    setIsFormOpen(false)
   }
 
-  function handleDelete(station: Station) {
+  async function handleDelete(station: Station) {
     const confirmed = window.confirm(`'${station.name}' 정류장을 삭제할까요?`)
     if (!confirmed) return
 
-    setStations((prev) => prev.filter((item) => item.id !== station.id))
+    try {
+      await apiRequest(`/manage/stations/${station.id}`, { method: 'DELETE' })
+      await loadStations()
+    } catch {
+      window.alert('삭제에 실패했습니다. 잠시 후 다시 시도해주세요.')
+    }
   }
 
   return (
@@ -127,6 +110,8 @@ function StationsPage() {
         </button>
       </div>
 
+      {error && <p className="mt-3 text-xs text-red-500">{error}</p>}
+
       <div className="mt-4 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
         <table className="w-full text-left text-sm">
           <thead>
@@ -141,7 +126,15 @@ function StationsPage() {
             </tr>
           </thead>
           <tbody>
-            {stations.map((station) => (
+            {isLoading && (
+              <tr>
+                <td colSpan={7} className="px-4 py-8 text-center text-sm text-slate-400">
+                  불러오는 중...
+                </td>
+              </tr>
+            )}
+
+            {!isLoading && stations.map((station) => (
               <tr key={station.id} className="border-b border-slate-100 last:border-0">
                 <td className="px-4 py-3 text-slate-500">{station.id}</td>
                 <td className="px-4 py-3 font-medium text-slate-800">{station.name}</td>
@@ -186,7 +179,7 @@ function StationsPage() {
               </tr>
             ))}
 
-            {stations.length === 0 && (
+            {!isLoading && stations.length === 0 && (
               <tr>
                 <td colSpan={7} className="px-4 py-8 text-center text-sm text-slate-400">
                   등록된 정류장이 없습니다.

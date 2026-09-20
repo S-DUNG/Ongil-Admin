@@ -1,7 +1,9 @@
-import { useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
+import { apiRequest } from '../api/client'
 
 type PadStatus = '정상' | '점검' | '고장'
 
+// TODO: 실제 응답 필드명이 다르면 여기 타입과 pad.xxx로 읽는 부분들을 맞춰서 고쳐야 합니다.
 type SmartPad = {
   id: string
   serial: string
@@ -10,49 +12,6 @@ type SmartPad = {
   batteryLevel: number
   createdAt: string
 }
-
-const INITIAL_PADS: SmartPad[] = [
-  {
-    id: 'PAD-01',
-    serial: 'SN-2026-0092',
-    stationName: '광주송정역',
-    status: '정상',
-    batteryLevel: 92,
-    createdAt: '2026-09-08 09:35',
-  },
-  {
-    id: 'PAD-02',
-    serial: 'SN-2026-0091',
-    stationName: '양동시장역',
-    status: '정상',
-    batteryLevel: 88,
-    createdAt: '2026-09-08 08:50',
-  },
-  {
-    id: 'PAD-03',
-    serial: 'SN-2026-0090',
-    stationName: '송정역',
-    status: '고장',
-    batteryLevel: 12,
-    createdAt: '2026-09-07 15:10',
-  },
-  {
-    id: 'PAD-04',
-    serial: 'SN-2026-0089',
-    stationName: '상무역',
-    status: '점검',
-    batteryLevel: 54,
-    createdAt: '2026-09-07 13:25',
-  },
-  {
-    id: 'PAD-05',
-    serial: 'SN-2026-0088',
-    stationName: '금남로역',
-    status: '정상',
-    batteryLevel: 97,
-    createdAt: '2026-09-06 17:00',
-  },
-]
 
 type FormState = {
   serial: string
@@ -69,24 +28,43 @@ const STATUS_STYLE: Record<PadStatus, string> = {
   고장: 'bg-red-50 text-red-500',
 }
 
-function nowString() {
-  return new Date().toISOString().slice(0, 16).replace('T', ' ')
-}
-
 function SmartPadsPage() {
-  const [pads, setPads] = useState<SmartPad[]>(INITIAL_PADS)
+  const [pads, setPads] = useState<SmartPad[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState('')
   const [editingId, setEditingId] = useState<string | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [form, setForm] = useState<FormState>(EMPTY_FORM)
+  const [editingOriginalStatus, setEditingOriginalStatus] = useState<PadStatus | null>(null)
+
+  async function loadPads() {
+    setIsLoading(true)
+    setError('')
+    try {
+      const data = await apiRequest<SmartPad[]>('/manage/smart-pads')
+      setPads(data)
+    } catch {
+      setError('스마트패드 목록을 불러오지 못했습니다.')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- 마운트 시 최초 목록 조회
+    loadPads()
+  }, [])
 
   function openAddForm() {
     setEditingId(null)
+    setEditingOriginalStatus(null)
     setForm(EMPTY_FORM)
     setIsFormOpen(true)
   }
 
   function openEditForm(pad: SmartPad) {
     setEditingId(pad.id)
+    setEditingOriginalStatus(pad.status)
     setForm({
       serial: pad.serial,
       stationName: pad.stationName,
@@ -100,24 +78,42 @@ function SmartPadsPage() {
     setIsFormOpen(false)
   }
 
-  function handleFormSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleFormSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
 
-    if (editingId) {
-      setPads((prev) => prev.map((pad) => (pad.id === editingId ? { ...pad, ...form } : pad)))
-    } else {
-      const nextId = `PAD-${String(pads.length + 1).padStart(2, '0')}`
-      setPads((prev) => [...prev, { id: nextId, createdAt: nowString(), ...form }])
+    try {
+      if (editingId) {
+        // 정보 수정과 상태 변경이 API 명세상 별도 엔드포인트라서 두 번 호출합니다.
+        await apiRequest(`/manage/smart-pads/${editingId}`, {
+          method: 'PATCH',
+          body: { serial: form.serial, stationName: form.stationName, batteryLevel: form.batteryLevel },
+        })
+        if (form.status !== editingOriginalStatus) {
+          await apiRequest(`/manage/smart-pads/${editingId}/status`, {
+            method: 'PATCH',
+            body: { status: form.status },
+          })
+        }
+      } else {
+        await apiRequest('/manage/smart-pads', { method: 'POST', body: form })
+      }
+      setIsFormOpen(false)
+      await loadPads()
+    } catch {
+      window.alert('저장에 실패했습니다. 잠시 후 다시 시도해주세요.')
     }
-
-    setIsFormOpen(false)
   }
 
-  function handleDelete(pad: SmartPad) {
+  async function handleDelete(pad: SmartPad) {
     const confirmed = window.confirm(`'${pad.serial}' 스마트패드를 삭제할까요?`)
     if (!confirmed) return
 
-    setPads((prev) => prev.filter((item) => item.id !== pad.id))
+    try {
+      await apiRequest(`/manage/smart-pads/${pad.id}`, { method: 'DELETE' })
+      await loadPads()
+    } catch {
+      window.alert('삭제에 실패했습니다. 잠시 후 다시 시도해주세요.')
+    }
   }
 
   return (
@@ -133,6 +129,8 @@ function SmartPadsPage() {
         </button>
       </div>
 
+      {error && <p className="mt-3 text-xs text-red-500">{error}</p>}
+
       <div className="mt-4 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
         <table className="w-full text-left text-sm">
           <thead>
@@ -147,7 +145,15 @@ function SmartPadsPage() {
             </tr>
           </thead>
           <tbody>
-            {pads.map((pad) => (
+            {isLoading && (
+              <tr>
+                <td colSpan={7} className="px-4 py-8 text-center text-sm text-slate-400">
+                  불러오는 중...
+                </td>
+              </tr>
+            )}
+
+            {!isLoading && pads.map((pad) => (
               <tr key={pad.id} className="border-b border-slate-100 last:border-0">
                 <td className="px-4 py-3 text-slate-500">{pad.id}</td>
                 <td className="px-4 py-3 font-medium text-slate-800">{pad.serial}</td>
@@ -190,7 +196,7 @@ function SmartPadsPage() {
               </tr>
             ))}
 
-            {pads.length === 0 && (
+            {!isLoading && pads.length === 0 && (
               <tr>
                 <td colSpan={7} className="px-4 py-8 text-center text-sm text-slate-400">
                   등록된 스마트패드가 없습니다.

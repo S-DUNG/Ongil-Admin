@@ -2,9 +2,7 @@ import { useState, type FormEvent } from 'react'
 import ongilLogo from '../assets/ongil-logo.png'
 import ongilLetterLogo from '../assets/ongil-letter-logo.png'
 import AdminApp from './AdminApp'
-
-// 백엔드가 없어서 일단 이 비밀번호로만 로그인되게 해뒀습니다.
-const ADMIN_PASSWORD = 'admin1234'
+import { apiRequest, clearToken, setToken } from '../api/client'
 
 function LoginPage() {
   const [password, setPassword] = useState('')
@@ -24,20 +22,24 @@ function LoginPage() {
 
     setError('')
     setIsSubmitting(true)
-    await new Promise((resolve) => setTimeout(resolve, 500))
 
-    if (trimmed !== ADMIN_PASSWORD) {
+    try {
+      const data = await apiRequest<{ accessToken: string }>('/auth/login', {
+        method: 'POST',
+        body: { password: trimmed },
+      })
+      setToken(data.accessToken)
+      setIsLoggedIn(true)
+    } catch {
       setError('비밀번호가 올바르지 않습니다.')
+    } finally {
       setIsSubmitting(false)
-      return
     }
-
-    setIsSubmitting(false)
-    setIsLoggedIn(true)
   }
 
   function handleLogout() {
     setPassword('')
+    clearToken()
     setIsLoggedIn(false)
   }
 

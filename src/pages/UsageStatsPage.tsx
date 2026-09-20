@@ -1,8 +1,32 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { apiRequest } from '../api/client'
 
 type Period = '오늘' | '최근 7일' | '최근 30일'
 
 const PERIODS: Period[] = ['오늘', '최근 7일', '최근 30일']
+
+// TODO: /statistics/service-usage 실제 응답 필드명 확인 후 UsageResponse 타입과
+// 아래에서 값을 꺼내는 부분을 맞춰서 고치세요. 확인 전까지는 요청 실패 시 mock 값을 보여줍니다.
+type UsageResponse = {
+  total: number
+  dailyAvg: number
+  topStation: string
+  topHour: string
+  hourly: { hour: string; count: number }[]
+  stations: { name: string; count: number }[]
+}
+
+function toDateParam(date: Date) {
+  return date.toISOString().slice(0, 10)
+}
+
+function periodToDateRange(period: Period): { startDate: string; endDate: string } {
+  const end = new Date()
+  const start = new Date()
+  if (period === '최근 7일') start.setDate(start.getDate() - 6)
+  if (period === '최근 30일') start.setDate(start.getDate() - 29)
+  return { startDate: toDateParam(start), endDate: toDateParam(end) }
+}
 
 // 백엔드 연동 전이라 기간별로 다른 mock 데이터를 미리 넣어뒀습니다.
 const SUMMARY: Record<Period, { total: number; dailyAvg: number; topStation: string; topHour: string }> = {
@@ -73,10 +97,18 @@ const STATION_USAGE: Record<Period, { name: string; count: number }[]> = {
 
 function UsageStatsPage() {
   const [period, setPeriod] = useState<Period>('오늘')
+  const [usage, setUsage] = useState<UsageResponse | null>(null)
 
-  const summary = SUMMARY[period]
-  const hourly = HOURLY_USAGE[period]
-  const stations = STATION_USAGE[period]
+  useEffect(() => {
+    const { startDate, endDate } = periodToDateRange(period)
+    apiRequest<UsageResponse>(`/statistics/service-usage?startDate=${startDate}&endDate=${endDate}`)
+      .then(setUsage)
+      .catch(() => setUsage(null)) // 실패하면 아래 mock 값을 그대로 보여줍니다.
+  }, [period])
+
+  const summary = usage ?? SUMMARY[period]
+  const hourly = usage?.hourly ?? HOURLY_USAGE[period]
+  const stations = usage?.stations ?? STATION_USAGE[period]
   const maxHourly = Math.max(...hourly.map((item) => item.count))
   const maxStation = Math.max(...stations.map((item) => item.count))
 
