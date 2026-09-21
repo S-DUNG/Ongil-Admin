@@ -1,31 +1,37 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { apiRequest } from '../api/client'
 
-// TODO: 실제 응답 필드명이 다르면(예: stationId, isPadInstalled) 여기 타입과
-// 아래에서 station.xxx로 읽는 부분들을 맞춰서 고쳐야 합니다.
 type Station = {
-  id: string
+  id: number
+  tagoStationId: string
   name: string
+  latitude: number
+  longitude: number
   address: string
-  padInstalled: boolean
-  status: '정상' | '점검'
+  active: boolean
   createdAt: string
 }
 
-type FormState = {
-  name: string
-  address: string
-  padInstalled: boolean
-  status: '정상' | '점검'
+type StationsPageResponse = {
+  content: Station[]
+  totalElements: number
 }
 
-const EMPTY_FORM: FormState = { name: '', address: '', padInstalled: false, status: '정상' }
+type FormState = {
+  tagoStationId: string
+  name: string
+  address: string
+  latitude: string
+  longitude: string
+}
+
+const EMPTY_FORM: FormState = { tagoStationId: '', name: '', address: '', latitude: '', longitude: '' }
 
 function StationsPage() {
   const [stations, setStations] = useState<Station[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
-  const [editingId, setEditingId] = useState<string | null>(null)
+  const [editingId, setEditingId] = useState<number | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [form, setForm] = useState<FormState>(EMPTY_FORM)
 
@@ -33,9 +39,8 @@ function StationsPage() {
     setIsLoading(true)
     setError('')
     try {
-      // TODO: 응답이 { data: [...] } 형태로 감싸져 있으면 apiRequest<{ data: Station[] }>로 바꾸고 data.data를 쓰세요.
-      const data = await apiRequest<Station[]>('/manage/stations')
-      setStations(data)
+      const data = await apiRequest<StationsPageResponse>('/manage/stations')
+      setStations(data.content)
     } catch {
       setError('정류장 목록을 불러오지 못했습니다.')
     } finally {
@@ -57,10 +62,11 @@ function StationsPage() {
   function openEditForm(station: Station) {
     setEditingId(station.id)
     setForm({
+      tagoStationId: station.tagoStationId,
       name: station.name,
       address: station.address,
-      padInstalled: station.padInstalled,
-      status: station.status,
+      latitude: String(station.latitude),
+      longitude: String(station.longitude),
     })
     setIsFormOpen(true)
   }
@@ -72,11 +78,19 @@ function StationsPage() {
   async function handleFormSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
 
+    const body = {
+      tagoStationId: form.tagoStationId,
+      name: form.name,
+      address: form.address,
+      latitude: Number(form.latitude),
+      longitude: Number(form.longitude),
+    }
+
     try {
       if (editingId) {
-        await apiRequest(`/manage/stations/${editingId}`, { method: 'PATCH', body: form })
+        await apiRequest(`/manage/stations/${editingId}`, { method: 'PATCH', body })
       } else {
-        await apiRequest('/manage/stations', { method: 'POST', body: form })
+        await apiRequest('/manage/stations', { method: 'POST', body })
       }
       setIsFormOpen(false)
       await loadStations()
@@ -117,10 +131,11 @@ function StationsPage() {
           <thead>
             <tr className="border-b border-slate-200 text-xs text-slate-400">
               <th className="px-4 py-3 font-medium">ID</th>
+              <th className="px-4 py-3 font-medium">TAGO ID</th>
               <th className="px-4 py-3 font-medium">정류장명</th>
               <th className="px-4 py-3 font-medium">주소</th>
-              <th className="px-4 py-3 font-medium">스마트패드</th>
-              <th className="px-4 py-3 font-medium">상태</th>
+              <th className="px-4 py-3 font-medium">위도/경도</th>
+              <th className="px-4 py-3 font-medium">운영상태</th>
               <th className="px-4 py-3 font-medium">등록일</th>
               <th className="px-4 py-3 font-medium">관리</th>
             </tr>
@@ -128,7 +143,7 @@ function StationsPage() {
           <tbody>
             {isLoading && (
               <tr>
-                <td colSpan={7} className="px-4 py-8 text-center text-sm text-slate-400">
+                <td colSpan={8} className="px-4 py-8 text-center text-sm text-slate-400">
                   불러오는 중...
                 </td>
               </tr>
@@ -137,24 +152,21 @@ function StationsPage() {
             {!isLoading && stations.map((station) => (
               <tr key={station.id} className="border-b border-slate-100 last:border-0">
                 <td className="px-4 py-3 text-slate-500">{station.id}</td>
+                <td className="px-4 py-3 text-slate-500">{station.tagoStationId}</td>
                 <td className="px-4 py-3 font-medium text-slate-800">{station.name}</td>
                 <td className="px-4 py-3 text-slate-500">{station.address}</td>
-                <td className="px-4 py-3">
-                  {station.padInstalled ? (
-                    <span className="text-emerald-600">설치됨</span>
-                  ) : (
-                    <span className="text-slate-400">미설치</span>
-                  )}
+                <td className="px-4 py-3 text-slate-500">
+                  {station.latitude}, {station.longitude}
                 </td>
                 <td className="px-4 py-3">
                   <span
                     className={
-                      station.status === '정상'
+                      station.active
                         ? 'rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-600'
-                        : 'rounded-full bg-red-50 px-2 py-0.5 text-xs font-medium text-red-500'
+                        : 'rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-500'
                     }
                   >
-                    {station.status}
+                    {station.active ? '운영중' : '미운영'}
                   </span>
                 </td>
                 <td className="px-4 py-3 text-slate-400">{station.createdAt}</td>
@@ -181,7 +193,7 @@ function StationsPage() {
 
             {!isLoading && stations.length === 0 && (
               <tr>
-                <td colSpan={7} className="px-4 py-8 text-center text-sm text-slate-400">
+                <td colSpan={8} className="px-4 py-8 text-center text-sm text-slate-400">
                   등록된 정류장이 없습니다.
                 </td>
               </tr>
@@ -202,6 +214,16 @@ function StationsPage() {
 
             <div className="mt-4 flex flex-col gap-3">
               <div>
+                <label className="mb-1 block text-xs font-medium text-slate-600">TAGO 정류장 ID</label>
+                <input
+                  required
+                  value={form.tagoStationId}
+                  onChange={(event) => setForm({ ...form, tagoStationId: event.target.value })}
+                  className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-accent/60"
+                />
+              </div>
+
+              <div>
                 <label className="mb-1 block text-xs font-medium text-slate-600">정류장명</label>
                 <input
                   required
@@ -221,28 +243,30 @@ function StationsPage() {
                 />
               </div>
 
-              <div>
-                <label className="mb-1 block text-xs font-medium text-slate-600">상태</label>
-                <select
-                  value={form.status}
-                  onChange={(event) =>
-                    setForm({ ...form, status: event.target.value as '정상' | '점검' })
-                  }
-                  className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-accent/60"
-                >
-                  <option value="정상">정상</option>
-                  <option value="점검">점검</option>
-                </select>
+              <div className="flex gap-3">
+                <div className="flex-1">
+                  <label className="mb-1 block text-xs font-medium text-slate-600">위도</label>
+                  <input
+                    required
+                    type="number"
+                    step="any"
+                    value={form.latitude}
+                    onChange={(event) => setForm({ ...form, latitude: event.target.value })}
+                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-accent/60"
+                  />
+                </div>
+                <div className="flex-1">
+                  <label className="mb-1 block text-xs font-medium text-slate-600">경도</label>
+                  <input
+                    required
+                    type="number"
+                    step="any"
+                    value={form.longitude}
+                    onChange={(event) => setForm({ ...form, longitude: event.target.value })}
+                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-accent/60"
+                  />
+                </div>
               </div>
-
-              <label className="flex items-center gap-2 text-sm text-slate-600">
-                <input
-                  type="checkbox"
-                  checked={form.padInstalled}
-                  onChange={(event) => setForm({ ...form, padInstalled: event.target.checked })}
-                />
-                스마트패드 설치됨
-              </label>
             </div>
 
             <div className="mt-6 flex gap-2">
