@@ -2,16 +2,12 @@ import { useEffect, useState } from 'react'
 import { PinIcon, TabletIcon, CheckCircleIcon, WarningIcon } from '../components/icons'
 import { apiRequest } from '../api/client'
 
-// TODO: /manage/dashboard 실제 응답 필드명 확인 후 DashboardResponse 타입과
-// 아래에서 값을 꺼내는 부분(totalStations 등)을 맞춰서 고치세요.
-// 확인 전까지는 요청 실패/필드 불일치 시 mock 값을 그대로 보여줍니다.
 type DashboardResponse = {
-  totalStations: number
-  totalSmartPads: number
-  normalCount: number
-  issueCount: number
-  recentStations: { id: string; name: string; createdAt: string }[]
-  recentSmartPads: { id: string; serial: string; createdAt: string }[]
+  totalStationCount: number
+  totalSmartPadCount: number
+  smartPadStatusCounts: { status: string; count: number }[]
+  recentStations: { id: number; name: string; createdAt: string }[] | null
+  recentSmartPads: { id: number; serial: string; createdAt: string }[]
 }
 
 // 백엔드 연동 전이라 화면 확인용 mock 데이터입니다.
@@ -47,16 +43,24 @@ function DashboardPage() {
       .catch(() => setDashboard(null)) // 실패하면 아래 mock 값을 그대로 보여줍니다.
   }, [])
 
+  // TODO: smartPadStatusCounts 항목의 status 값이 실제로 스마트패드가 등록된 뒤에
+  // 어떤 문자열로 오는지(예: '정상' 또는 'NORMAL') 확인 후 아래 매칭 조건을 맞춰주세요.
+  const normalCount =
+    dashboard?.smartPadStatusCounts.find(
+      (item) => item.status === '정상' || item.status === 'NORMAL',
+    )?.count ?? 0
+  const issueCount = dashboard ? dashboard.totalSmartPadCount - normalCount : 0
+
   const stats = dashboard
     ? [
-        { label: '전체 정류장', value: dashboard.totalStations, Icon: PinIcon, valueClassName: 'text-slate-900' },
-        { label: '전체 스마트패드', value: dashboard.totalSmartPads, Icon: TabletIcon, valueClassName: 'text-slate-900' },
-        { label: '정상 작동 (NORMAL)', value: dashboard.normalCount, Icon: CheckCircleIcon, valueClassName: 'text-emerald-600' },
-        { label: '점검/고장', value: dashboard.issueCount, Icon: WarningIcon, valueClassName: 'text-red-500' },
+        { label: '전체 정류장', value: dashboard.totalStationCount, Icon: PinIcon, valueClassName: 'text-slate-900' },
+        { label: '전체 스마트패드', value: dashboard.totalSmartPadCount, Icon: TabletIcon, valueClassName: 'text-slate-900' },
+        { label: '정상 작동 (NORMAL)', value: normalCount, Icon: CheckCircleIcon, valueClassName: 'text-emerald-600' },
+        { label: '점검/고장', value: issueCount, Icon: WarningIcon, valueClassName: 'text-red-500' },
       ]
     : STATS
-  const recentStations = dashboard?.recentStations ?? RECENT_STATIONS
-  const recentPads = dashboard?.recentSmartPads ?? RECENT_PADS
+  const recentStations = dashboard ? (dashboard.recentStations ?? []) : RECENT_STATIONS
+  const recentPads = dashboard ? dashboard.recentSmartPads : RECENT_PADS
 
   return (
     <>
@@ -85,6 +89,14 @@ function DashboardPage() {
               </tr>
             </thead>
             <tbody>
+              {recentStations.length === 0 && (
+                <tr>
+                  <td colSpan={3} className="py-6 text-center text-slate-400">
+                    등록된 정류장이 없습니다.
+                  </td>
+                </tr>
+              )}
+
               {recentStations.map((row) => (
                 <tr key={row.id} className="border-t border-slate-100">
                   <td className="py-2 text-slate-500">{row.id}</td>
@@ -108,6 +120,14 @@ function DashboardPage() {
               </tr>
             </thead>
             <tbody>
+              {recentPads.length === 0 && (
+                <tr>
+                  <td colSpan={3} className="py-6 text-center text-slate-400">
+                    등록된 스마트패드가 없습니다.
+                  </td>
+                </tr>
+              )}
+
               {recentPads.map((row) => (
                 <tr key={row.id} className="border-t border-slate-100">
                   <td className="py-2 text-slate-500">{row.id}</td>
