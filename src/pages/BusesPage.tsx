@@ -1,9 +1,5 @@
-import { useEffect, useState } from 'react'
-import { apiRequest } from '../api/client'
-
 type BusStatus = '운행중' | '운행종료' | '점검'
 
-// TODO: 실제 응답 필드명이 다르면 여기 타입과 bus.xxx로 읽는 부분들을 맞춰서 고쳐야 합니다.
 type Bus = {
   id: string
   busNumber: string
@@ -19,36 +15,14 @@ const STATUS_STYLE: Record<BusStatus, string> = {
   점검: 'bg-amber-50 text-amber-600',
 }
 
-// 버스 데이터는 TAGO/오디세이 외부 API에서 가져오는 값이라 관리자가 등록·수정·삭제할
-// 수 없습니다. 그래서 이 페이지는 조회 전용이고, 팀 논의에 따라 등록/수정/삭제 UI는
-// 두지 않습니다.
+// 팀 논의에 따라 버스 데이터 관리 기능은 없어졌습니다(백엔드 API도 없습니다).
+// 메뉴/페이지는 남겨두기로 해서, 빈 목록만 보여주는 화면으로 둡니다.
+const buses: Bus[] = []
+
 function BusesPage() {
-  const [buses, setBuses] = useState<Bus[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState('')
-
-  useEffect(() => {
-    async function loadBuses() {
-      setError('')
-      try {
-        // TODO: 응답이 { data: [...] } 형태로 감싸져 있으면 apiRequest<{ data: Bus[] }>로 바꾸고 data.data를 쓰세요.
-        const data = await apiRequest<Bus[]>('/manage/bus-data')
-        setBuses(data)
-      } catch {
-        setError('버스 데이터를 불러오지 못했습니다.')
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    loadBuses()
-  }, [])
-
   return (
     <div>
       <p className="text-sm text-slate-500">등록된 버스 {buses.length}개</p>
-
-      {error && <p className="mt-3 text-xs text-red-500">{error}</p>}
 
       <div className="mt-4 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
         <table className="w-full text-left text-sm">
@@ -63,15 +37,7 @@ function BusesPage() {
             </tr>
           </thead>
           <tbody>
-            {isLoading && (
-              <tr>
-                <td colSpan={6} className="px-4 py-8 text-center text-sm text-slate-400">
-                  불러오는 중...
-                </td>
-              </tr>
-            )}
-
-            {!isLoading && buses.map((bus) => (
+            {buses.map((bus) => (
               <tr key={bus.id} className="border-b border-slate-100 last:border-0">
                 <td className="px-4 py-3 text-slate-500">{bus.id}</td>
                 <td className="px-4 py-3 font-medium text-slate-800">{bus.busNumber}</td>
@@ -94,7 +60,7 @@ function BusesPage() {
               </tr>
             ))}
 
-            {!isLoading && buses.length === 0 && (
+            {buses.length === 0 && (
               <tr>
                 <td colSpan={6} className="px-4 py-8 text-center text-sm text-slate-400">
                   등록된 버스가 없습니다.
