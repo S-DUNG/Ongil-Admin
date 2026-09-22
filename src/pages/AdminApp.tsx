@@ -3,7 +3,6 @@ import Sidebar, { type PageKey } from '../components/Sidebar'
 import DashboardPage from './DashboardPage'
 import StationsPage from './StationsPage'
 import SmartPadsPage from './SmartPadsPage'
-import BusesPage from './BusesPage'
 import UsageStatsPage from './UsageStatsPage'
 import { UserIcon } from '../components/icons'
 
@@ -35,7 +34,6 @@ function AdminApp({ onLogout }: { onLogout: () => void }) {
           {page === '운영 대시보드' && <DashboardPage />}
           {page === '정류장 관리' && <StationsPage />}
           {page === '스마트 패드 관리' && <SmartPadsPage />}
-          {page === '버스 데이터 관리' && <BusesPage />}
           {page === '서비스 이용 통계' && <UsageStatsPage />}
         </main>
       </div>

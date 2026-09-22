@@ -1,18 +1,16 @@
 import ongilLogo from '../assets/ongil-logo.png'
-import { DashboardIcon, PinIcon, TabletIcon, BusIcon, ChartIcon } from './icons'
+import { DashboardIcon, PinIcon, TabletIcon, ChartIcon } from './icons'
 
 export type PageKey =
   | '운영 대시보드'
   | '정류장 관리'
   | '스마트 패드 관리'
-  | '버스 데이터 관리'
   | '서비스 이용 통계'
 
 const NAV_ITEMS: { key: PageKey; Icon: typeof DashboardIcon; enabled: boolean }[] = [
   { key: '운영 대시보드', Icon: DashboardIcon, enabled: true },
   { key: '정류장 관리', Icon: PinIcon, enabled: true },
   { key: '스마트 패드 관리', Icon: TabletIcon, enabled: true },
-  { key: '버스 데이터 관리', Icon: BusIcon, enabled: true },
   { key: '서비스 이용 통계', Icon: ChartIcon, enabled: true },
 ]
 
