@@ -134,7 +134,6 @@ function StationsPage() {
               <th className="px-4 py-3 font-medium">TAGO ID</th>
               <th className="px-4 py-3 font-medium">정류장명</th>
               <th className="px-4 py-3 font-medium">주소</th>
-              <th className="px-4 py-3 font-medium">위도/경도</th>
               <th className="px-4 py-3 font-medium">운영상태</th>
               <th className="px-4 py-3 font-medium">등록일</th>
               <th className="px-4 py-3 font-medium">관리</th>
@@ -143,7 +142,7 @@ function StationsPage() {
           <tbody>
             {isLoading && (
               <tr>
-                <td colSpan={8} className="px-4 py-8 text-center text-sm text-slate-400">
+                <td colSpan={7} className="px-4 py-8 text-center text-sm text-slate-400">
                   불러오는 중...
                 </td>
               </tr>
@@ -155,9 +154,6 @@ function StationsPage() {
                 <td className="px-4 py-3 text-slate-500">{station.tagoStationId}</td>
                 <td className="px-4 py-3 font-medium text-slate-800">{station.name}</td>
                 <td className="px-4 py-3 text-slate-500">{station.address}</td>
-                <td className="px-4 py-3 text-slate-500">
-                  {station.latitude}, {station.longitude}
-                </td>
                 <td className="px-4 py-3">
                   <span
                     className={
