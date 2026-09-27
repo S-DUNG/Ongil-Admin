@@ -15,16 +15,23 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+    timeout-minutes: 15
 
-      - uses: actions/setup-node@v4
+    steps:
+      - name: Checkout 
+        uses: actions/checkout@v4
+
+      - name: Node 설정
+        uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 20
           cache: npm
 
-      - name: Install dependencies
+      - name: 의존성 설치
         run: npm ci
+
+      - name: Lint
+        run: npm run lint
 
       - name: Build
         run: npm run build
@@ -52,3 +59,25 @@ jobs:
           aws cloudfront create-invalidation \
             --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
             --paths "/*"
+
+      - name: Ongil-Admin CD Discord Notification (success)
+        if: success()
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_FRONT_WEBHOOK }}
+          status: ${{ job.status }}
+          title: '🚀 [Admin] 배포 성공 🚀'
+          description: 'S3 + CloudFront 배포 완료'
+          color: 65280
+          username: 'front-bot'
+ 
+      - name: Ongil-Admin CD Discord Notification (failure)
+        if: failure()
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_FRONT_WEBHOOK }}
+          status: ${{ job.status }}
+          title: '❗ [Admin] 배포 실패❗'
+          description: 'S3 + CloudFront 배포 실패'
+          color: 16711680
+          username: 'front-bot'
