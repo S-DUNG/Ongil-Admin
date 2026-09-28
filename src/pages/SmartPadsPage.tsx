@@ -1,11 +1,13 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { apiRequest } from '../api/client'
 
+type PadStatus = 'NORMAL' | 'BROKEN' | 'INSPECTING'
+
 type SmartPad = {
   id: number
   stationId: number
   serialNumber: string
-  status: string
+  status: PadStatus
   installedAt: string
 }
 
@@ -17,13 +19,21 @@ type Station = {
 type FormState = {
   stationId: string
   serialNumber: string
+  status: PadStatus
 }
 
-const EMPTY_FORM: FormState = { stationId: '', serialNumber: '' }
+const EMPTY_FORM: FormState = { stationId: '', serialNumber: '', status: 'NORMAL' }
 
-// TODO: status 값 종류(NORMAL 외 어떤 값들이 있는지) 확인되면 상태 변경 UI를 추가하세요.
-const STATUS_STYLE: Record<string, string> = {
+const STATUS_LABEL: Record<PadStatus, string> = {
+  NORMAL: '정상',
+  BROKEN: '고장',
+  INSPECTING: '점검중',
+}
+
+const STATUS_STYLE: Record<PadStatus, string> = {
   NORMAL: 'bg-emerald-50 text-emerald-600',
+  BROKEN: 'bg-red-50 text-red-500',
+  INSPECTING: 'bg-amber-50 text-amber-600',
 }
 
 function SmartPadsPage() {
@@ -34,6 +44,7 @@ function SmartPadsPage() {
   const [editingId, setEditingId] = useState<number | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [form, setForm] = useState<FormState>(EMPTY_FORM)
+  const [editingOriginalStatus, setEditingOriginalStatus] = useState<PadStatus | null>(null)
 
   async function loadPads() {
     setIsLoading(true)
@@ -69,13 +80,15 @@ function SmartPadsPage() {
 
   function openAddForm() {
     setEditingId(null)
+    setEditingOriginalStatus(null)
     setForm(EMPTY_FORM)
     setIsFormOpen(true)
   }
 
   function openEditForm(pad: SmartPad) {
     setEditingId(pad.id)
-    setForm({ stationId: String(pad.stationId), serialNumber: pad.serialNumber })
+    setEditingOriginalStatus(pad.status)
+    setForm({ stationId: String(pad.stationId), serialNumber: pad.serialNumber, status: pad.status })
     setIsFormOpen(true)
   }
 
@@ -92,6 +105,12 @@ function SmartPadsPage() {
           method: 'PATCH',
           body: { stationId: Number(form.stationId), serialNumber: form.serialNumber },
         })
+        if (form.status !== editingOriginalStatus) {
+          await apiRequest(`/manage/smart-pads/${editingId}/status`, {
+            method: 'PATCH',
+            body: { status: form.status },
+          })
+        }
       } else {
         await apiRequest('/manage/smart-pads', {
           method: 'POST',
@@ -164,11 +183,9 @@ function SmartPadsPage() {
                 <td className="px-4 py-3 text-slate-500">{stationName(pad.stationId)}</td>
                 <td className="px-4 py-3">
                   <span
-                    className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                      STATUS_STYLE[pad.status] ?? 'bg-slate-100 text-slate-500'
-                    }`}
+                    className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_STYLE[pad.status]}`}
                   >
-                    {pad.status}
+                    {STATUS_LABEL[pad.status]}
                   </span>
                 </td>
                 <td className="px-4 py-3 text-slate-400">{pad.installedAt}</td>
@@ -243,6 +260,23 @@ function SmartPadsPage() {
                   ))}
                 </select>
               </div>
+
+              {editingId && (
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-slate-600">상태</label>
+                  <select
+                    value={form.status}
+                    onChange={(event) =>
+                      setForm({ ...form, status: event.target.value as PadStatus })
+                    }
+                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-accent/60"
+                  >
+                    <option value="NORMAL">정상</option>
+                    <option value="INSPECTING">점검중</option>
+                    <option value="BROKEN">고장</option>
+                  </select>
+                </div>
+              )}
             </div>
 
             <div className="mt-6 flex gap-2">
