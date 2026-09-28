@@ -6,8 +6,8 @@ type DashboardResponse = {
   totalStationCount: number
   totalSmartPadCount: number
   smartPadStatusCounts: { status: string; count: number }[]
-  recentStations: { id: number; name: string; createdAt: string }[] | null
-  recentSmartPads: { id: number; serial: string; createdAt: string }[]
+  recentStations: { id: number; tagoStationId: string; name: string; createdAt: string }[] | null
+  recentSmartPads: { id: number; serialNumber: string; createdAt: string }[]
 }
 
 function DashboardPage() {
@@ -64,7 +64,7 @@ function DashboardPage() {
           <table className="mt-4 w-full text-left text-sm">
             <thead>
               <tr className="text-xs text-slate-400">
-                <th className="pb-2 font-medium">ID</th>
+                <th className="pb-2 font-medium">TAGO ID</th>
                 <th className="pb-2 font-medium">정류장명</th>
                 <th className="pb-2 font-medium">생성일시</th>
               </tr>
@@ -88,7 +88,7 @@ function DashboardPage() {
 
               {!isLoading && recentStations.map((row) => (
                 <tr key={row.id} className="border-t border-slate-100">
-                  <td className="py-2 text-slate-500">{row.id}</td>
+                  <td className="py-2 text-slate-500">{row.tagoStationId}</td>
                   <td className="py-2 font-medium text-slate-800">{row.name}</td>
                   <td className="py-2 text-slate-400">{row.createdAt}</td>
                 </tr>
@@ -103,7 +103,6 @@ function DashboardPage() {
           <table className="mt-4 w-full text-left text-sm">
             <thead>
               <tr className="text-xs text-slate-400">
-                <th className="pb-2 font-medium">ID</th>
                 <th className="pb-2 font-medium">시리얼번호</th>
                 <th className="pb-2 font-medium">생성일시</th>
               </tr>
@@ -111,7 +110,7 @@ function DashboardPage() {
             <tbody>
               {isLoading && (
                 <tr>
-                  <td colSpan={3} className="py-6 text-center text-slate-400">
+                  <td colSpan={2} className="py-6 text-center text-slate-400">
                     불러오는 중...
                   </td>
                 </tr>
@@ -119,7 +118,7 @@ function DashboardPage() {
 
               {!isLoading && recentPads.length === 0 && (
                 <tr>
-                  <td colSpan={3} className="py-6 text-center text-slate-400">
+                  <td colSpan={2} className="py-6 text-center text-slate-400">
                     등록된 스마트패드가 없습니다.
                   </td>
                 </tr>
@@ -127,8 +126,7 @@ function DashboardPage() {
 
               {!isLoading && recentPads.map((row) => (
                 <tr key={row.id} className="border-t border-slate-100">
-                  <td className="py-2 text-slate-500">{row.id}</td>
-                  <td className="py-2 font-medium text-slate-800">{row.serial}</td>
+                  <td className="py-2 font-medium text-slate-800">{row.serialNumber}</td>
                   <td className="py-2 text-slate-400">{row.createdAt}</td>
                 </tr>
               ))}
