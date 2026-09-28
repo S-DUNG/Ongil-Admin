@@ -21,9 +21,10 @@ type FormState = {
   stationId: string
   serialNumber: string
   status: PadStatus
+  installedAt: string
 }
 
-const EMPTY_FORM: FormState = { stationId: '', serialNumber: '', status: 'NORMAL' }
+const EMPTY_FORM: FormState = { stationId: '', serialNumber: '', status: 'NORMAL', installedAt: '' }
 
 const STATUS_LABEL: Record<PadStatus, string> = {
   NORMAL: '정상',
@@ -90,7 +91,12 @@ function SmartPadsPage() {
   function openEditForm(pad: SmartPad) {
     setEditingId(pad.id)
     setEditingOriginalStatus(pad.status)
-    setForm({ stationId: String(pad.stationId), serialNumber: pad.serialNumber, status: pad.status })
+    setForm({
+      stationId: String(pad.stationId),
+      serialNumber: pad.serialNumber,
+      status: pad.status,
+      installedAt: pad.installedAt,
+    })
     setIsFormOpen(true)
   }
 
@@ -105,7 +111,11 @@ function SmartPadsPage() {
       if (editingId) {
         await apiRequest(`/manage/smart-pads/${editingId}`, {
           method: 'PATCH',
-          body: { stationId: Number(form.stationId), serialNumber: form.serialNumber },
+          body: {
+            stationId: Number(form.stationId),
+            serialNumber: form.serialNumber,
+            installedAt: form.installedAt,
+          },
         })
         if (form.status !== editingOriginalStatus) {
           await apiRequest(`/manage/smart-pads/${editingId}/status`, {
