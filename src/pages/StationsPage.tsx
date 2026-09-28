@@ -192,7 +192,7 @@ function StationsPage() {
 
             {!isLoading && stations.length === 0 && (
               <tr>
-                <td colSpan={8} className="px-4 py-8 text-center text-sm text-slate-400">
+                <td colSpan={7} className="px-4 py-8 text-center text-sm text-slate-400">
                   등록된 정류장이 없습니다.
                 </td>
               </tr>
