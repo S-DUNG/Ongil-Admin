@@ -133,7 +133,6 @@ function StationsPage() {
         <table className="w-full text-left text-sm">
           <thead>
             <tr className="border-b border-slate-200 text-xs text-slate-400">
-              <th className="px-4 py-3 font-medium">ID</th>
               <th className="px-4 py-3 font-medium">TAGO ID</th>
               <th className="px-4 py-3 font-medium">정류장명</th>
               <th className="px-4 py-3 font-medium">주소</th>
@@ -145,7 +144,7 @@ function StationsPage() {
           <tbody>
             {isLoading && (
               <tr>
-                <td colSpan={7} className="px-4 py-8 text-center text-sm text-slate-400">
+                <td colSpan={6} className="px-4 py-8 text-center text-sm text-slate-400">
                   불러오는 중...
                 </td>
               </tr>
@@ -153,7 +152,6 @@ function StationsPage() {
 
             {!isLoading && stations.map((station) => (
               <tr key={station.id} className="border-b border-slate-100 last:border-0">
-                <td className="px-4 py-3 text-slate-500">{station.id}</td>
                 <td className="px-4 py-3 text-slate-500">{station.tagoStationId}</td>
                 <td className="px-4 py-3 font-medium text-slate-800">{station.name}</td>
                 <td className="px-4 py-3 text-slate-500">{station.address}</td>
@@ -192,7 +190,7 @@ function StationsPage() {
 
             {!isLoading && stations.length === 0 && (
               <tr>
-                <td colSpan={7} className="px-4 py-8 text-center text-sm text-slate-400">
+                <td colSpan={6} className="px-4 py-8 text-center text-sm text-slate-400">
                   등록된 정류장이 없습니다.
                 </td>
               </tr>
