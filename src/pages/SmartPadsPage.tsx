@@ -1,5 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { apiRequest } from '../api/client'
+import ConfirmDialog from '../components/ConfirmDialog'
 
 type PadStatus = 'NORMAL' | 'BROKEN' | 'INSPECTING'
 
@@ -45,6 +46,7 @@ function SmartPadsPage() {
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [form, setForm] = useState<FormState>(EMPTY_FORM)
   const [editingOriginalStatus, setEditingOriginalStatus] = useState<PadStatus | null>(null)
+  const [deleteTarget, setDeleteTarget] = useState<SmartPad | null>(null)
 
   async function loadPads() {
     setIsLoading(true)
@@ -128,14 +130,15 @@ function SmartPadsPage() {
     }
   }
 
-  async function handleDelete(pad: SmartPad) {
-    const confirmed = window.confirm(`'${pad.serialNumber}' 스마트패드를 삭제할까요?`)
-    if (!confirmed) return
+  async function handleDelete() {
+    if (!deleteTarget) return
 
     try {
-      await apiRequest(`/manage/smart-pads/${pad.id}`, { method: 'DELETE' })
+      await apiRequest(`/manage/smart-pads/${deleteTarget.id}`, { method: 'DELETE' })
+      setDeleteTarget(null)
       await loadPads()
     } catch {
+      setDeleteTarget(null)
       window.alert('삭제에 실패했습니다. 잠시 후 다시 시도해주세요.')
     }
   }
@@ -200,7 +203,7 @@ function SmartPadsPage() {
                     </button>
                     <button
                       type="button"
-                      onClick={() => handleDelete(pad)}
+                      onClick={() => setDeleteTarget(pad)}
                       className="rounded border border-red-200 px-2 py-1 text-red-500 hover:bg-red-50"
                     >
                       삭제
@@ -296,6 +299,15 @@ function SmartPadsPage() {
             </div>
           </form>
         </div>
+      )}
+
+      {deleteTarget && (
+        <ConfirmDialog
+          title="스마트패드 삭제"
+          message={`'${deleteTarget.serialNumber}' 스마트패드를 삭제할까요?`}
+          onConfirm={handleDelete}
+          onCancel={() => setDeleteTarget(null)}
+        />
       )}
     </div>
   )

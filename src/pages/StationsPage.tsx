@@ -1,5 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { apiRequest } from '../api/client'
+import ConfirmDialog from '../components/ConfirmDialog'
 
 type Station = {
   id: number
@@ -34,6 +35,7 @@ function StationsPage() {
   const [editingId, setEditingId] = useState<number | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [form, setForm] = useState<FormState>(EMPTY_FORM)
+  const [deleteTarget, setDeleteTarget] = useState<Station | null>(null)
 
   async function loadStations() {
     setIsLoading(true)
@@ -99,14 +101,15 @@ function StationsPage() {
     }
   }
 
-  async function handleDelete(station: Station) {
-    const confirmed = window.confirm(`'${station.name}' 정류장을 삭제할까요?`)
-    if (!confirmed) return
+  async function handleDelete() {
+    if (!deleteTarget) return
 
     try {
-      await apiRequest(`/manage/stations/${station.id}`, { method: 'DELETE' })
+      await apiRequest(`/manage/stations/${deleteTarget.id}`, { method: 'DELETE' })
+      setDeleteTarget(null)
       await loadStations()
     } catch {
+      setDeleteTarget(null)
       window.alert('삭제에 실패했습니다. 잠시 후 다시 시도해주세요.')
     }
   }
@@ -177,7 +180,7 @@ function StationsPage() {
                     </button>
                     <button
                       type="button"
-                      onClick={() => handleDelete(station)}
+                      onClick={() => setDeleteTarget(station)}
                       className="rounded border border-red-200 px-2 py-1 text-red-500 hover:bg-red-50"
                     >
                       삭제
@@ -282,6 +285,15 @@ function StationsPage() {
             </div>
           </form>
         </div>
+      )}
+
+      {deleteTarget && (
+        <ConfirmDialog
+          title="정류장 삭제"
+          message={`'${deleteTarget.name}' 정류장을 삭제할까요?`}
+          onConfirm={handleDelete}
+          onCancel={() => setDeleteTarget(null)}
+        />
       )}
     </div>
   )
