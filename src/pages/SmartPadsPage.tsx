@@ -1,41 +1,39 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { apiRequest } from '../api/client'
 
-type PadStatus = '정상' | '점검' | '고장'
-
-// TODO: 실제 응답 필드명이 다르면 여기 타입과 pad.xxx로 읽는 부분들을 맞춰서 고쳐야 합니다.
 type SmartPad = {
-  id: string
-  serial: string
-  stationName: string
-  status: PadStatus
-  batteryLevel: number
-  createdAt: string
+  id: number
+  stationId: number
+  serialNumber: string
+  status: string
+  installedAt: string
+}
+
+type Station = {
+  id: number
+  name: string
 }
 
 type FormState = {
-  serial: string
-  stationName: string
-  status: PadStatus
-  batteryLevel: number
+  stationId: string
+  serialNumber: string
 }
 
-const EMPTY_FORM: FormState = { serial: '', stationName: '', status: '정상', batteryLevel: 100 }
+const EMPTY_FORM: FormState = { stationId: '', serialNumber: '' }
 
-const STATUS_STYLE: Record<PadStatus, string> = {
-  정상: 'bg-emerald-50 text-emerald-600',
-  점검: 'bg-amber-50 text-amber-600',
-  고장: 'bg-red-50 text-red-500',
+// TODO: status 값 종류(NORMAL 외 어떤 값들이 있는지) 확인되면 상태 변경 UI를 추가하세요.
+const STATUS_STYLE: Record<string, string> = {
+  NORMAL: 'bg-emerald-50 text-emerald-600',
 }
 
 function SmartPadsPage() {
   const [pads, setPads] = useState<SmartPad[]>([])
+  const [stations, setStations] = useState<Station[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
-  const [editingId, setEditingId] = useState<string | null>(null)
+  const [editingId, setEditingId] = useState<number | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [form, setForm] = useState<FormState>(EMPTY_FORM)
-  const [editingOriginalStatus, setEditingOriginalStatus] = useState<PadStatus | null>(null)
 
   async function loadPads() {
     setIsLoading(true)
@@ -50,27 +48,34 @@ function SmartPadsPage() {
     }
   }
 
+  async function loadStations() {
+    try {
+      const data = await apiRequest<{ content: Station[] }>('/manage/stations')
+      setStations(data.content)
+    } catch {
+      setStations([])
+    }
+  }
+
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- 마운트 시 최초 목록 조회
     loadPads()
+    loadStations()
   }, [])
+
+  function stationName(stationId: number) {
+    return stations.find((station) => station.id === stationId)?.name ?? `정류장 #${stationId}`
+  }
 
   function openAddForm() {
     setEditingId(null)
-    setEditingOriginalStatus(null)
     setForm(EMPTY_FORM)
     setIsFormOpen(true)
   }
 
   function openEditForm(pad: SmartPad) {
     setEditingId(pad.id)
-    setEditingOriginalStatus(pad.status)
-    setForm({
-      serial: pad.serial,
-      stationName: pad.stationName,
-      status: pad.status,
-      batteryLevel: pad.batteryLevel,
-    })
+    setForm({ stationId: String(pad.stationId), serialNumber: pad.serialNumber })
     setIsFormOpen(true)
   }
 
@@ -83,19 +88,19 @@ function SmartPadsPage() {
 
     try {
       if (editingId) {
-        // 정보 수정과 상태 변경이 API 명세상 별도 엔드포인트라서 두 번 호출합니다.
         await apiRequest(`/manage/smart-pads/${editingId}`, {
           method: 'PATCH',
-          body: { serial: form.serial, stationName: form.stationName, batteryLevel: form.batteryLevel },
+          body: { stationId: Number(form.stationId), serialNumber: form.serialNumber },
         })
-        if (form.status !== editingOriginalStatus) {
-          await apiRequest(`/manage/smart-pads/${editingId}/status`, {
-            method: 'PATCH',
-            body: { status: form.status },
-          })
-        }
       } else {
-        await apiRequest('/manage/smart-pads', { method: 'POST', body: form })
+        await apiRequest('/manage/smart-pads', {
+          method: 'POST',
+          body: {
+            stationId: Number(form.stationId),
+            serialNumber: form.serialNumber,
+            installedAt: new Date().toISOString(),
+          },
+        })
       }
       setIsFormOpen(false)
       await loadPads()
@@ -105,7 +110,7 @@ function SmartPadsPage() {
   }
 
   async function handleDelete(pad: SmartPad) {
-    const confirmed = window.confirm(`'${pad.serial}' 스마트패드를 삭제할까요?`)
+    const confirmed = window.confirm(`'${pad.serialNumber}' 스마트패드를 삭제할까요?`)
     if (!confirmed) return
 
     try {
@@ -138,16 +143,15 @@ function SmartPadsPage() {
               <th className="px-4 py-3 font-medium">ID</th>
               <th className="px-4 py-3 font-medium">시리얼번호</th>
               <th className="px-4 py-3 font-medium">설치 정류장</th>
-              <th className="px-4 py-3 font-medium">배터리</th>
               <th className="px-4 py-3 font-medium">상태</th>
-              <th className="px-4 py-3 font-medium">등록일</th>
+              <th className="px-4 py-3 font-medium">설치일시</th>
               <th className="px-4 py-3 font-medium">관리</th>
             </tr>
           </thead>
           <tbody>
             {isLoading && (
               <tr>
-                <td colSpan={7} className="px-4 py-8 text-center text-sm text-slate-400">
+                <td colSpan={6} className="px-4 py-8 text-center text-sm text-slate-400">
                   불러오는 중...
                 </td>
               </tr>
@@ -156,25 +160,18 @@ function SmartPadsPage() {
             {!isLoading && pads.map((pad) => (
               <tr key={pad.id} className="border-b border-slate-100 last:border-0">
                 <td className="px-4 py-3 text-slate-500">{pad.id}</td>
-                <td className="px-4 py-3 font-medium text-slate-800">{pad.serial}</td>
-                <td className="px-4 py-3 text-slate-500">{pad.stationName}</td>
+                <td className="px-4 py-3 font-medium text-slate-800">{pad.serialNumber}</td>
+                <td className="px-4 py-3 text-slate-500">{stationName(pad.stationId)}</td>
                 <td className="px-4 py-3">
                   <span
-                    className={
-                      pad.batteryLevel <= 20 ? 'font-medium text-red-500' : 'text-slate-600'
-                    }
-                  >
-                    {pad.batteryLevel}%
-                  </span>
-                </td>
-                <td className="px-4 py-3">
-                  <span
-                    className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_STYLE[pad.status]}`}
+                    className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                      STATUS_STYLE[pad.status] ?? 'bg-slate-100 text-slate-500'
+                    }`}
                   >
                     {pad.status}
                   </span>
                 </td>
-                <td className="px-4 py-3 text-slate-400">{pad.createdAt}</td>
+                <td className="px-4 py-3 text-slate-400">{pad.installedAt}</td>
                 <td className="px-4 py-3">
                   <div className="flex gap-2 text-xs">
                     <button
@@ -198,7 +195,7 @@ function SmartPadsPage() {
 
             {!isLoading && pads.length === 0 && (
               <tr>
-                <td colSpan={7} className="px-4 py-8 text-center text-sm text-slate-400">
+                <td colSpan={6} className="px-4 py-8 text-center text-sm text-slate-400">
                   등록된 스마트패드가 없습니다.
                 </td>
               </tr>
@@ -222,49 +219,28 @@ function SmartPadsPage() {
                 <label className="mb-1 block text-xs font-medium text-slate-600">시리얼번호</label>
                 <input
                   required
-                  value={form.serial}
-                  onChange={(event) => setForm({ ...form, serial: event.target.value })}
+                  value={form.serialNumber}
+                  onChange={(event) => setForm({ ...form, serialNumber: event.target.value })}
                   className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-accent/60"
                 />
               </div>
 
               <div>
                 <label className="mb-1 block text-xs font-medium text-slate-600">설치 정류장</label>
-                <input
-                  required
-                  value={form.stationName}
-                  onChange={(event) => setForm({ ...form, stationName: event.target.value })}
-                  className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-accent/60"
-                />
-              </div>
-
-              <div>
-                <label className="mb-1 block text-xs font-medium text-slate-600">배터리 (%)</label>
-                <input
-                  required
-                  type="number"
-                  min={0}
-                  max={100}
-                  value={form.batteryLevel}
-                  onChange={(event) =>
-                    setForm({ ...form, batteryLevel: Number(event.target.value) })
-                  }
-                  className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-accent/60"
-                />
-              </div>
-
-              <div>
-                <label className="mb-1 block text-xs font-medium text-slate-600">상태</label>
                 <select
-                  value={form.status}
-                  onChange={(event) =>
-                    setForm({ ...form, status: event.target.value as PadStatus })
-                  }
+                  required
+                  value={form.stationId}
+                  onChange={(event) => setForm({ ...form, stationId: event.target.value })}
                   className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-accent/60"
                 >
-                  <option value="정상">정상</option>
-                  <option value="점검">점검</option>
-                  <option value="고장">고장</option>
+                  <option value="" disabled>
+                    정류장 선택
+                  </option>
+                  {stations.map((station) => (
+                    <option key={station.id} value={station.id}>
+                      {station.name}
+                    </option>
+                  ))}
                 </select>
               </div>
             </div>
