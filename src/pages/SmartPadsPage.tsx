@@ -162,7 +162,6 @@ function SmartPadsPage() {
         <table className="w-full text-left text-sm">
           <thead>
             <tr className="border-b border-slate-200 text-xs text-slate-400">
-              <th className="px-4 py-3 font-medium">ID</th>
               <th className="px-4 py-3 font-medium">시리얼번호</th>
               <th className="px-4 py-3 font-medium">설치 정류장</th>
               <th className="px-4 py-3 font-medium">상태</th>
@@ -173,7 +172,7 @@ function SmartPadsPage() {
           <tbody>
             {isLoading && (
               <tr>
-                <td colSpan={6} className="px-4 py-8 text-center text-sm text-slate-400">
+                <td colSpan={5} className="px-4 py-8 text-center text-sm text-slate-400">
                   불러오는 중...
                 </td>
               </tr>
@@ -181,7 +180,6 @@ function SmartPadsPage() {
 
             {!isLoading && pads.map((pad) => (
               <tr key={pad.id} className="border-b border-slate-100 last:border-0">
-                <td className="px-4 py-3 text-slate-500">{pad.id}</td>
                 <td className="px-4 py-3 font-medium text-slate-800">{pad.serialNumber}</td>
                 <td className="px-4 py-3 text-slate-500">{stationName(pad.stationId)}</td>
                 <td className="px-4 py-3">
@@ -215,7 +213,7 @@ function SmartPadsPage() {
 
             {!isLoading && pads.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-4 py-8 text-center text-sm text-slate-400">
+                <td colSpan={5} className="px-4 py-8 text-center text-sm text-slate-400">
                   등록된 스마트패드가 없습니다.
                 </td>
               </tr>
