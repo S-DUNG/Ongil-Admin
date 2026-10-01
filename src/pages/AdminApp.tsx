@@ -4,7 +4,6 @@ import DashboardPage from './DashboardPage'
 import StationsPage from './StationsPage'
 import SmartPadsPage from './SmartPadsPage'
 import UsageStatsPage from './UsageStatsPage'
-import { UserIcon } from '../components/icons'
 
 function AdminApp({ onLogout }: { onLogout: () => void }) {
   const [page, setPage] = useState<PageKey>('운영 대시보드')
