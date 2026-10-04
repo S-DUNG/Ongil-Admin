@@ -26,6 +26,15 @@ type FormState = {
   longitude: string
 }
 
+type GeocodeResult = {
+  stationId: number
+  tagoStationId: string
+  name: string
+  nodeNo: string
+  latitude: number
+  longitude: number
+}
+
 const EMPTY_FORM: FormState = { tagoStationId: '', name: '', address: '', latitude: '', longitude: '' }
 
 function StationsPage() {
@@ -36,6 +45,9 @@ function StationsPage() {
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [form, setForm] = useState<FormState>(EMPTY_FORM)
   const [deleteTarget, setDeleteTarget] = useState<Station | null>(null)
+  const [searchResults, setSearchResults] = useState<GeocodeResult[]>([])
+  const [isSearching, setIsSearching] = useState(false)
+  const [searchError, setSearchError] = useState('')
 
   async function loadStations() {
     setIsLoading(true)
@@ -58,6 +70,8 @@ function StationsPage() {
   function openAddForm() {
     setEditingId(null)
     setForm(EMPTY_FORM)
+    setSearchResults([])
+    setSearchError('')
     setIsFormOpen(true)
   }
 
@@ -70,11 +84,43 @@ function StationsPage() {
       latitude: String(station.latitude),
       longitude: String(station.longitude),
     })
+    setSearchResults([])
+    setSearchError('')
     setIsFormOpen(true)
   }
 
   function closeForm() {
     setIsFormOpen(false)
+  }
+
+  async function handleAddressSearch() {
+    if (!form.address.trim()) return
+
+    setIsSearching(true)
+    setSearchError('')
+    try {
+      const results = await apiRequest<GeocodeResult[]>(
+        `/manage/stations/geocode-search?address=${encodeURIComponent(form.address)}`,
+      )
+      setSearchResults(results)
+      if (results.length === 0) setSearchError('검색 결과가 없습니다.')
+    } catch {
+      setSearchResults([])
+      setSearchError('정류장 검색에 실패했습니다.')
+    } finally {
+      setIsSearching(false)
+    }
+  }
+
+  function selectSearchResult(result: GeocodeResult) {
+    setForm({
+      ...form,
+      tagoStationId: result.tagoStationId,
+      name: result.name,
+      latitude: String(result.latitude),
+      longitude: String(result.longitude),
+    })
+    setSearchResults([])
   }
 
   async function handleFormSubmit(event: FormEvent<HTMLFormElement>) {
@@ -210,13 +256,57 @@ function StationsPage() {
             </h2>
 
             <div className="mt-4 flex flex-col gap-3">
+              {!editingId && (
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-slate-600">주소로 정류장 검색</label>
+                  <div className="flex gap-2">
+                    <input
+                      required
+                      value={form.address}
+                      onChange={(event) => setForm({ ...form, address: event.target.value })}
+                      placeholder="주소를 입력하세요"
+                      className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-accent/60"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleAddressSearch}
+                      disabled={isSearching}
+                      className="shrink-0 rounded-lg bg-accent px-3 py-2 text-xs font-semibold text-slate-900 transition hover:brightness-95 disabled:opacity-50"
+                    >
+                      {isSearching ? '검색 중...' : '검색'}
+                    </button>
+                  </div>
+
+                  {searchError && <p className="mt-1 text-xs text-red-500">{searchError}</p>}
+
+                  {searchResults.length > 0 && (
+                    <div className="mt-2 max-h-40 overflow-y-auto rounded-lg border border-slate-200">
+                      {searchResults.map((result) => (
+                        <button
+                          type="button"
+                          key={result.stationId}
+                          onClick={() => selectSearchResult(result)}
+                          className="block w-full border-b border-slate-100 px-3 py-2 text-left text-sm last:border-0 hover:bg-slate-50"
+                        >
+                          <span className="font-medium text-slate-800">{result.name}</span>
+                          <span className="ml-2 text-xs text-slate-400">TAGO {result.tagoStationId}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
               <div>
                 <label className="mb-1 block text-xs font-medium text-slate-600">TAGO 정류장 ID</label>
                 <input
                   required
+                  readOnly={!editingId}
                   value={form.tagoStationId}
                   onChange={(event) => setForm({ ...form, tagoStationId: event.target.value })}
-                  className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-accent/60"
+                  className={`w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-accent/60 ${
+                    !editingId ? 'bg-slate-50 text-slate-500' : ''
+                  }`}
                 />
               </div>
 
@@ -230,37 +320,45 @@ function StationsPage() {
                 />
               </div>
 
-              <div>
-                <label className="mb-1 block text-xs font-medium text-slate-600">주소</label>
-                <input
-                  required
-                  value={form.address}
-                  onChange={(event) => setForm({ ...form, address: event.target.value })}
-                  className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-accent/60"
-                />
-              </div>
+              {editingId && (
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-slate-600">주소</label>
+                  <input
+                    required
+                    value={form.address}
+                    onChange={(event) => setForm({ ...form, address: event.target.value })}
+                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-accent/60"
+                  />
+                </div>
+              )}
 
               <div className="flex gap-3">
                 <div className="flex-1">
                   <label className="mb-1 block text-xs font-medium text-slate-600">위도</label>
                   <input
                     required
+                    readOnly={!editingId}
                     type="number"
                     step="any"
                     value={form.latitude}
                     onChange={(event) => setForm({ ...form, latitude: event.target.value })}
-                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-accent/60"
+                    className={`w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-accent/60 ${
+                      !editingId ? 'bg-slate-50 text-slate-500' : ''
+                    }`}
                   />
                 </div>
                 <div className="flex-1">
                   <label className="mb-1 block text-xs font-medium text-slate-600">경도</label>
                   <input
                     required
+                    readOnly={!editingId}
                     type="number"
                     step="any"
                     value={form.longitude}
                     onChange={(event) => setForm({ ...form, longitude: event.target.value })}
-                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-accent/60"
+                    className={`w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-accent/60 ${
+                      !editingId ? 'bg-slate-50 text-slate-500' : ''
+                    }`}
                   />
                 </div>
               </div>
