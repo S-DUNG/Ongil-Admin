@@ -131,6 +131,11 @@ function StationsPage() {
       return
     }
 
+    if (!editingId && stations.some((station) => station.tagoStationId === form.tagoStationId)) {
+      window.alert('중복된 정류장입니다.')
+      return
+    }
+
     const body = {
       tagoStationId: form.tagoStationId,
       name: form.name,
