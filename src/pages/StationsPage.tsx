@@ -295,6 +295,7 @@ function StationsPage() {
                         >
                           <span className="font-medium text-slate-800">{result.name}</span>
                           <span className="ml-2 text-xs text-slate-400">TAGO {result.tagoStationId}</span>
+                          <span className="ml-2 text-xs text-slate-400">번호판 {result.nodeNo}</span>
                         </button>
                       ))}
                     </div>
