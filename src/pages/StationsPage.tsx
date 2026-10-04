@@ -48,6 +48,7 @@ function StationsPage() {
   const [searchResults, setSearchResults] = useState<GeocodeResult[]>([])
   const [isSearching, setIsSearching] = useState(false)
   const [searchError, setSearchError] = useState('')
+  const [formError, setFormError] = useState('')
 
   async function loadStations() {
     setIsLoading(true)
@@ -72,6 +73,7 @@ function StationsPage() {
     setForm(EMPTY_FORM)
     setSearchResults([])
     setSearchError('')
+    setFormError('')
     setIsFormOpen(true)
   }
 
@@ -86,6 +88,7 @@ function StationsPage() {
     })
     setSearchResults([])
     setSearchError('')
+    setFormError('')
     setIsFormOpen(true)
   }
 
@@ -125,14 +128,15 @@ function StationsPage() {
 
   async function handleFormSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
+    setFormError('')
 
     if (!editingId && !form.tagoStationId) {
-      window.alert('주소 검색 결과에서 정류장을 먼저 선택해주세요.')
+      setFormError('주소 검색 결과에서 정류장을 먼저 선택해주세요.')
       return
     }
 
     if (!editingId && stations.some((station) => station.tagoStationId === form.tagoStationId)) {
-      window.alert('중복된 정류장입니다.')
+      setFormError('중복된 정류장입니다.')
       return
     }
 
@@ -153,7 +157,7 @@ function StationsPage() {
       setIsFormOpen(false)
       await loadStations()
     } catch {
-      window.alert('저장에 실패했습니다. 잠시 후 다시 시도해주세요.')
+      setFormError('저장에 실패했습니다. 잠시 후 다시 시도해주세요.')
     }
   }
 
@@ -374,6 +378,12 @@ function StationsPage() {
                 </div>
               </div>
             </div>
+
+            {formError && (
+              <p className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-xs font-medium text-red-500">
+                {formError}
+              </p>
+            )}
 
             <div className="mt-6 flex gap-2">
               <button
