@@ -126,6 +126,11 @@ function StationsPage() {
   async function handleFormSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
 
+    if (!editingId && !form.tagoStationId) {
+      window.alert('주소 검색 결과에서 정류장을 먼저 선택해주세요.')
+      return
+    }
+
     const body = {
       tagoStationId: form.tagoStationId,
       name: form.name,
@@ -290,6 +295,7 @@ function StationsPage() {
                         >
                           <span className="font-medium text-slate-800">{result.name}</span>
                           <span className="ml-2 text-xs text-slate-400">TAGO {result.tagoStationId}</span>
+                          <span className="ml-2 text-xs text-slate-400">번호판 {result.nodeNo}</span>
                         </button>
                       ))}
                     </div>
