@@ -155,12 +155,12 @@ function SmartPadsPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm text-slate-500">등록된 스마트패드 {pads.length}개</p>
         <button
           type="button"
           onClick={openAddForm}
-          className="rounded-lg bg-accent px-3 py-1.5 text-xs font-semibold text-slate-900 transition hover:brightness-95"
+          className="self-start rounded-lg bg-accent px-3 py-1.5 text-xs font-semibold text-slate-900 transition hover:brightness-95 sm:self-auto"
         >
           + 새 스마트패드 추가
         </button>
@@ -168,8 +168,8 @@ function SmartPadsPage() {
 
       {error && <p className="mt-3 text-xs text-red-500">{error}</p>}
 
-      <div className="mt-4 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-        <table className="w-full text-left text-sm">
+      <div className="mt-4 overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
+        <table className="w-full min-w-[640px] text-left text-sm">
           <thead>
             <tr className="border-b border-slate-200 text-xs text-slate-400">
               <th className="px-4 py-3 font-medium">시리얼번호</th>

@@ -43,7 +43,7 @@ function DashboardPage() {
     <>
       {error && <p className="mb-3 text-xs text-red-500">{error}</p>}
 
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
         {stats.map((stat) => (
           <div key={stat.label} className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
             <div className="flex items-center justify-between">
@@ -57,7 +57,7 @@ function DashboardPage() {
         ))}
       </div>
 
-      <div className="mt-6 grid grid-cols-2 gap-4">
+      <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
         <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
           <h2 className="text-sm font-bold text-slate-900">최근 등록 정류장 Top 5</h2>
           <p className="mt-0.5 text-xs text-slate-400">최신 등록된 정류장 목록입니다.</p>

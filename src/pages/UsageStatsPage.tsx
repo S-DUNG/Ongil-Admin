@@ -43,7 +43,7 @@ function UsageStatsPage() {
 
   return (
     <div>
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2">
         {PERIODS.map((item) => (
           <button
             key={item}
@@ -62,7 +62,7 @@ function UsageStatsPage() {
 
       {error && <p className="mt-3 text-xs text-red-500">{error}</p>}
 
-      <div className="mt-4 grid grid-cols-4 gap-4">
+      <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
         <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
           <p className="text-xs text-slate-500">총 이용 건수</p>
           <p className="mt-2 text-2xl font-bold text-slate-900">
@@ -89,7 +89,7 @@ function UsageStatsPage() {
         </div>
       </div>
 
-      <div className="mt-6 grid grid-cols-2 gap-4">
+      <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
         <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
           <h2 className="text-sm font-bold text-slate-900">시간대별 이용 현황</h2>
           <p className="mt-0.5 text-xs text-slate-400">시간대별 이용 건수입니다.</p>
