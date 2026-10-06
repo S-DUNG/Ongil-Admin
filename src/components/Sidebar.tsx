@@ -22,27 +22,27 @@ function Sidebar({
   onNavigate: (page: PageKey) => void
 }) {
   return (
-    <aside className="flex w-56 shrink-0 flex-col border-r border-slate-200 bg-white">
+    <aside className="flex w-full shrink-0 flex-col border-b border-slate-200 bg-white md:w-56 md:border-b-0 md:border-r">
       <button
         type="button"
         onClick={() => onNavigate('운영 대시보드')}
-        className="flex items-center gap-2 border-b border-slate-200 px-5 py-4 text-left transition hover:bg-slate-50"
+        className="flex items-center gap-2 border-b border-slate-200 px-4 py-3 text-left transition hover:bg-slate-50 md:px-5 md:py-4"
       >
-        <img src={ongilLogo} alt="온길" className="h-8 w-8 object-contain" />
+        <img src={ongilLogo} alt="온길" className="h-7 w-7 shrink-0 object-contain md:h-8 md:w-8" />
         <div>
           <p className="text-sm font-bold text-ink">온길</p>
-          <p className="text-[10px] tracking-wide text-slate-400">ONGIL SMART STATION</p>
+          <p className="hidden text-[10px] tracking-wide text-slate-400 md:block">ONGIL SMART STATION</p>
         </div>
       </button>
 
-      <nav className="flex flex-col gap-1 p-3">
+      <nav className="flex gap-1 overflow-x-auto p-2 md:flex-col md:overflow-visible md:p-3">
         {NAV_ITEMS.map(({ key, Icon, enabled }) => (
           <button
             key={key}
             type="button"
             disabled={!enabled}
             onClick={() => onNavigate(key)}
-            className={`flex items-center gap-2 rounded-lg px-3 py-2 text-left text-sm transition ${
+            className={`flex shrink-0 items-center gap-2 whitespace-nowrap rounded-lg px-3 py-2 text-left text-sm transition ${
               key === active
                 ? 'bg-accent/40 font-semibold text-slate-900'
                 : enabled
